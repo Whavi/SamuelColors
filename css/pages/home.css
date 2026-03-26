@@ -94,6 +94,214 @@
 }
 
 /* ==========================================
+   LOGO TICKER (defilant infini sans coupure)
+   2 copies du meme groupe cote a cote
+   L'animation deplace de -50% = exactement 1 groupe
+   ========================================== */
+.logo-ticker {
+  overflow: hidden;
+  background: var(--color-primary-dark);
+  padding: var(--space-sm) 0;
+  user-select: none;
+}
+.logo-ticker-track {
+  display: flex;
+  width: fit-content;
+  animation: tickerScroll 35s linear infinite;
+}
+.ticker-group {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.ticker-item {
+  white-space: nowrap;
+  padding: var(--space-xs) var(--space-xl);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: rgba(255,255,255,0.8);
+  letter-spacing: 0.02em;
+}
+@keyframes tickerScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ==========================================
+   FOLDERS (3 collections)
+   ========================================== */
+.folders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-xl);
+}
+.folder-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+}
+.folder-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+.folder-header {
+  padding: var(--space-lg);
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-accent-light));
+  text-align: center;
+}
+.folder-header.folder-heroes {
+  background: linear-gradient(135deg, #fdcb6e, #e17055);
+}
+.folder-header.folder-world {
+  background: linear-gradient(135deg, #81ecec, #74b9ff);
+}
+.folder-icon { font-size: 2.8rem; margin-bottom: var(--space-xs); }
+.folder-header h3 {
+  color: var(--color-text);
+  font-size: var(--font-size-lg);
+}
+.folder-header p {
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  opacity: 0.7;
+}
+.folder-previews {
+  display: flex;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.folder-thumb {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+.folder-actions {
+  display: flex;
+  gap: var(--space-sm);
+  padding: 0 var(--space-md) var(--space-md);
+  margin-top: auto;
+}
+.folder-btn {
+  flex: 1;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+  transition: var(--transition-fast);
+  border: 2px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+.folder-btn:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: white;
+}
+.folder-btn-math {
+  border-color: var(--color-accent);
+}
+.folder-btn-math:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* ==========================================
+   PROFILES (Bilal, Samuel, Lazhaar)
+   ========================================== */
+.profiles-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr 1fr;
+  gap: var(--space-xl);
+  align-items: end;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.profile-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl) var(--space-lg);
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  position: relative;
+}
+.profile-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+.profile-card-featured {
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-accent-light));
+  padding: var(--space-2xl) var(--space-lg);
+  box-shadow: var(--shadow-lg);
+  border: 3px solid var(--color-primary);
+}
+.profile-badge {
+  position: absolute;
+  top: -12px;
+  right: -8px;
+  font-size: 1.8rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  color: white;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-black);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-md);
+  box-shadow: var(--shadow-sm);
+}
+.profile-avatar-lg {
+  width: 80px;
+  height: 80px;
+  font-size: var(--font-size-3xl);
+}
+.profile-card h3 {
+  margin-bottom: var(--space-xs);
+  font-size: var(--font-size-lg);
+}
+.profile-card p {
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-md);
+}
+.profile-btn {
+  padding: var(--space-sm) var(--space-xl);
+}
+.btn-sm {
+  padding: var(--space-sm) var(--space-lg);
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-md);
+}
+[data-theme="dark"] .profile-card-featured {
+  background: linear-gradient(135deg, #3a2078, #5a1848);
+}
+@media (max-width: 700px) {
+  .profiles-grid {
+    grid-template-columns: 1fr;
+    max-width: 320px;
+  }
+  .profile-card-featured { order: -1; }
+}
+
+/* ==========================================
    STATS BAR
    ========================================== */
 .stats-bar {

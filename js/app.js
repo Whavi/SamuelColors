@@ -133,6 +133,8 @@
       'cta.sub': 'C\'est gratuit et ca marche directement dans ton navigateur !',
       'cta.btn': 'Choisir un dessin 🎨',
       'picker.title': 'Choisis ton dessin',
+      'folders.title': 'Nos collections',
+      'folders.sub': 'Choisis une collection puis colorie ou fais des maths !',
     },
     en: {
       'nav.home': 'Home',
@@ -155,6 +157,8 @@
       'cta.sub': "It's free and works right in your browser!",
       'cta.btn': 'Pick a drawing 🎨',
       'picker.title': 'Pick your drawing',
+      'folders.title': 'Our collections',
+      'folders.sub': 'Pick a collection then color or do math!',
     }
   };
 
@@ -197,6 +201,8 @@
     setupToolbar();
     setupModals();
     setupPicker();
+    setupFolders();
+    setupProfiles();
     renderCategories();
     updateFavColorButtons();
 
@@ -228,6 +234,195 @@
 
     // Sound context (lazy init)
     window._audioCtx = null;
+  }
+
+  /* -------------------------------------------------------
+     Generic folder modal opener
+     ------------------------------------------------------- */
+  const FOLDER_GRADIENTS = {
+    animaux: 'linear-gradient(135deg, #A29BFE, #FD79A8)',
+    heros:   'linear-gradient(135deg, #FDCB6E, #E17055)',
+    monde:   'linear-gradient(135deg, #81ECEC, #74B9FF)',
+    bilal:   'linear-gradient(135deg, #00B894, #00CEC9)',
+    samuel:  'linear-gradient(135deg, #6C5CE7, #FD79A8)',
+    lazhaar: 'linear-gradient(135deg, #E17055, #FDCB6E)',
+  };
+
+  function openFolderModal(config) {
+    const overlay = $('#folderModal');
+    const banner = $('#folderModalBanner');
+    const grid = $('#folderModalGrid');
+    const mathOpts = $('#folderMathOpts');
+    const iconEl = $('#folderModalIcon');
+    const titleEl = $('#folderModalTitle');
+    const descEl = $('#folderModalDesc');
+
+    // Set banner
+    banner.style.background = FOLDER_GRADIENTS[config.id] || FOLDER_GRADIENTS.samuel;
+    iconEl.textContent = config.icon;
+    titleEl.textContent = config.title;
+    descEl.textContent = config.desc;
+
+    // Current state
+    let isMathTab = false;
+
+    function fillGrid() {
+      grid.textContent = '';
+      const list = isMathTab
+        ? config.drawings.filter(d => {
+            const p = new DOMParser();
+            return p.parseFromString(d.svg, 'image/svg+xml').querySelectorAll('[data-zone]').length >= 4;
+          })
+        : config.drawings;
+
+      list.forEach(d => {
+        const preview = createEl('div', { className: 'picker-card-preview' });
+        preview.innerHTML = d.svg;
+        const title = createEl('h4', null, d.name);
+        const card = createEl('div', { className: 'picker-card' }, [preview, title]);
+        card.addEventListener('click', () => {
+          closeFolderModal();
+          playClickSound();
+          if (isMathTab) {
+            selectedMathType = $$('[data-fmtype].active')[0]?.dataset.fmtype || 'addition';
+            selectedDifficulty = $$('[data-fdiff].active')[0]?.dataset.fdiff || 'easy';
+            openColoring(d.id, true);
+          } else {
+            openColoring(d.id, false);
+          }
+        });
+        grid.appendChild(card);
+      });
+    }
+
+    // Tabs
+    $$('[data-ftab]').forEach(t => {
+      t.onclick = () => {
+        $$('[data-ftab]').forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        isMathTab = t.dataset.ftab === 'math';
+        mathOpts.hidden = !isMathTab;
+        fillGrid();
+      };
+    });
+
+    // Math type + difficulty chips
+    $$('[data-fmtype]').forEach(c => {
+      c.onclick = () => { $$('[data-fmtype]').forEach(x => x.classList.remove('active')); c.classList.add('active'); };
+    });
+    $$('[data-fdiff]').forEach(c => {
+      c.onclick = () => { $$('[data-fdiff]').forEach(x => x.classList.remove('active')); c.classList.add('active'); };
+    });
+
+    // Reset to libre tab
+    $$('[data-ftab]').forEach(t => t.classList.toggle('active', t.dataset.ftab === 'libre'));
+    isMathTab = false;
+    mathOpts.hidden = true;
+
+    fillGrid();
+    overlay.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeFolderModal() {
+    $('#folderModal').hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  /* -------------------------------------------------------
+     Profiles (Bilal, Samuel, Lazhaar) — unique drawings
+     ------------------------------------------------------- */
+  function setupProfiles() {
+    const profileDrawings = {
+      bilal:   ['cat', 'dog', 'lion', 'star', 'house'],
+      samuel:  ['butterfly', 'hero', 'robot', 'flower', 'rocket', 'rainbow'],
+      lazhaar: ['turtle', 'fish', 'ninja', 'supercat', 'star', 'house']
+    };
+
+    // Close button
+    $('#folderModalClose').addEventListener('click', closeFolderModal);
+    $('#folderModal').addEventListener('click', (e) => { if (e.target === $('#folderModal')) closeFolderModal(); });
+
+    $$('.profile-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        playClickSound();
+        const name = btn.dataset.profile;
+        const ids = profileDrawings[name] || [];
+        const drawings = ids.map(id => DRAWINGS.find(d => d.id === id)).filter(Boolean);
+        openFolderModal({
+          id: name,
+          icon: name === 'bilal' ? '🎮' : name === 'samuel' ? '👑' : '🎯',
+          title: 'Espace de ' + name.charAt(0).toUpperCase() + name.slice(1),
+          desc: drawings.length + ' dessins selectionnes',
+          drawings
+        });
+      });
+    });
+  }
+
+  /* -------------------------------------------------------
+     Home Folders (3 collections on home page)
+     ------------------------------------------------------- */
+  function setupFolders() {
+    const grid = $('#foldersGrid');
+    if (!grid) return;
+
+    const folders = [
+      {
+        id: 'animaux', icon: '🐾', title: 'Animaux',
+        desc: 'Chat, chien, lion, tortue, poisson, papillon',
+        headerClass: '',
+        drawings: DRAWINGS.filter(d => d.categories.includes('animaux'))
+      },
+      {
+        id: 'heros', icon: '🦸', title: 'Super-heros',
+        desc: 'Heros volant, robot, ninja, super chat',
+        headerClass: 'folder-heroes',
+        drawings: DRAWINGS.filter(d => d.categories.includes('super-heros'))
+      },
+      {
+        id: 'monde', icon: '🌍', title: 'Monde & Formes',
+        desc: 'Maison, fusee, etoile, fleur, arc-en-ciel',
+        headerClass: 'folder-world',
+        drawings: DRAWINGS.filter(d =>
+          d.categories.includes('enfants') || d.categories.includes('ecole') || d.categories.includes('debutant')
+        ).filter((d, i, a) => a.findIndex(x => x.id === d.id) === i)
+      }
+    ];
+
+    grid.textContent = '';
+    folders.forEach(folder => {
+      const iconEl = createEl('div', { className: 'folder-icon', textContent: folder.icon });
+      const h3 = createEl('h3', null, folder.title);
+      const p = createEl('p', null, folder.desc);
+      const header = createEl('div', { className: 'folder-header ' + folder.headerClass }, [iconEl, h3, p]);
+
+      const previews = createEl('div', { className: 'folder-previews' });
+      folder.drawings.slice(0, 6).forEach(d => {
+        previews.appendChild(createEl('div', { className: 'folder-thumb', textContent: d.thumbnail }));
+      });
+
+      const btnLibre = createEl('button', { className: 'folder-btn' }, '🎨 Coloriage');
+      btnLibre.addEventListener('click', () => {
+        playClickSound();
+        openFolderModal({ id: folder.id, icon: folder.icon, title: folder.title, desc: folder.desc, drawings: folder.drawings });
+      });
+
+      const btnMath = createEl('button', { className: 'folder-btn folder-btn-math' }, '🧮 Maths');
+      btnMath.addEventListener('click', () => {
+        playClickSound();
+        openFolderModal({ id: folder.id, icon: folder.icon, title: folder.title + ' — Maths', desc: 'Resous les calculs !', drawings: folder.drawings });
+        // Switch to math tab
+        setTimeout(() => {
+          const mathTab = document.querySelector('[data-ftab="math"]');
+          if (mathTab) mathTab.click();
+        }, 50);
+      });
+
+      const actions = createEl('div', { className: 'folder-actions' }, [btnLibre, btnMath]);
+      const card = createEl('div', { className: 'folder-card' }, [header, previews, actions]);
+      grid.appendChild(card);
+    });
   }
 
   /* -------------------------------------------------------

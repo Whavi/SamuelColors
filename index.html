@@ -46,6 +46,32 @@
       </div>
     </div>
 
+    <!-- Banniere logos defilante — remplace le contenu des ticker-item par tes <img> -->
+    <div class="logo-ticker" aria-hidden="true">
+      <div class="logo-ticker-track">
+        <div class="ticker-group">
+          <span class="ticker-item">🎨 SamuelColors</span>
+          <span class="ticker-item">🖌️ Creatif</span>
+          <span class="ticker-item">🧮 Educatif</span>
+          <span class="ticker-item">🐱 Animaux</span>
+          <span class="ticker-item">🦸 Super-heros</span>
+          <span class="ticker-item">⭐ Amusant</span>
+          <span class="ticker-item">🚀 Gratuit</span>
+          <span class="ticker-item">📱 Mobile</span>
+        </div>
+        <div class="ticker-group">
+          <span class="ticker-item">🎨 SamuelColors</span>
+          <span class="ticker-item">🖌️ Creatif</span>
+          <span class="ticker-item">🧮 Educatif</span>
+          <span class="ticker-item">🐱 Animaux</span>
+          <span class="ticker-item">🦸 Super-heros</span>
+          <span class="ticker-item">⭐ Amusant</span>
+          <span class="ticker-item">🚀 Gratuit</span>
+          <span class="ticker-item">📱 Mobile</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Stats -->
     <div class="stats-bar">
       <div class="stat-item"><span class="stat-number">15</span><span class="stat-label" data-i18n="stats.drawings">Dessins</span></div>
@@ -54,8 +80,46 @@
       <div class="stat-item"><span class="stat-number">3</span><span class="stat-label" data-i18n="stats.levels">Niveaux</span></div>
     </div>
 
-    <!-- Comment ca marche -->
+    <!-- Dossiers personnalises -->
     <div class="home-section">
+      <div class="section-header">
+        <h2>Espaces personnels</h2>
+        <p>Chaque artiste a son propre espace !</p>
+      </div>
+      <div class="profiles-grid">
+        <div class="profile-card" id="profileBilal">
+          <div class="profile-avatar">B</div>
+          <h3>Bilal</h3>
+          <p>Mon espace de coloriage</p>
+          <button class="btn btn-primary btn-sm profile-btn" data-profile="bilal">Ouvrir</button>
+        </div>
+        <div class="profile-card profile-card-featured" id="profileSamuel">
+          <div class="profile-badge">⭐</div>
+          <div class="profile-avatar profile-avatar-lg">S</div>
+          <h3>Samuel</h3>
+          <p>Espace principal</p>
+          <button class="btn btn-primary btn-sm profile-btn" data-profile="samuel">Ouvrir</button>
+        </div>
+        <div class="profile-card" id="profileLazhaar">
+          <div class="profile-avatar">L</div>
+          <h3>Lazhaar</h3>
+          <p>Mon espace de coloriage</p>
+          <button class="btn btn-primary btn-sm profile-btn" data-profile="lazhaar">Ouvrir</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 dossiers de dessins -->
+    <div class="home-section">
+      <div class="section-header">
+        <h2 data-i18n="folders.title">Nos collections</h2>
+        <p data-i18n="folders.sub">Choisis une collection puis colorie ou fais des maths !</p>
+      </div>
+      <div class="folders-grid" id="foldersGrid"></div>
+    </div>
+
+    <!-- Comment ca marche -->
+    <div class="home-section home-section-alt">
       <div class="section-header">
         <h2 data-i18n="howto.title">Comment ca marche ?</h2>
       </div>
@@ -87,6 +151,38 @@
       </div>
     </div>
   </section>
+
+  <!-- ========== FOLDER / PROFILE MODAL (dynamic) ========== -->
+  <div class="folder-modal-overlay" id="folderModal" hidden>
+    <div class="folder-modal">
+      <div class="folder-modal-banner" id="folderModalBanner">
+        <button class="picker-close" id="folderModalClose">✕</button>
+        <div class="folder-modal-icon" id="folderModalIcon"></div>
+        <h2 id="folderModalTitle"></h2>
+        <p id="folderModalDesc"></p>
+      </div>
+      <div class="folder-modal-tabs" id="folderModalTabs">
+        <button class="folder-modal-tab active" data-ftab="libre">🎨 Coloriage</button>
+        <button class="folder-modal-tab" data-ftab="math">🧮 Maths</button>
+      </div>
+      <div class="folder-modal-body">
+        <div class="folder-modal-math-opts" id="folderMathOpts" hidden>
+          <div class="picker-chips">
+            <button class="picker-chip active" data-fmtype="addition">➕ Addition</button>
+            <button class="picker-chip" data-fmtype="subtraction">➖ Soustraction</button>
+            <button class="picker-chip" data-fmtype="multiplication">✖️ Multiplication</button>
+            <button class="picker-chip" data-fmtype="division">➗ Division</button>
+          </div>
+          <div class="picker-chips">
+            <button class="picker-chip active" data-fdiff="easy">⭐ Facile</button>
+            <button class="picker-chip" data-fdiff="medium">⭐⭐ Moyen</button>
+            <button class="picker-chip" data-fdiff="hard">⭐⭐⭐ Difficile</button>
+          </div>
+        </div>
+        <div class="picker-grid" id="folderModalGrid"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- ========== DRAWING PICKER MODAL ========== -->
   <div class="picker-overlay" id="pickerModal" hidden>
