@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sacol - Coloriage Interactif Éducatif</title>
+  <meta name="description" content="Application de coloriage interactif pour enfants. Colorie des animaux, super-héros et apprends les maths en t'amusant !">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <!-- ========== NAVBAR ========== -->
+  <nav class="navbar" id="navbar">
+    <div class="navbar-brand">
+      <span class="logo">🎨</span>
+      <span class="logo-text">Sacol</span>
+    </div>
+    <button class="burger-menu" id="burgerMenu" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#" data-view="home" class="nav-link active">Accueil</a></li>
+      <li><a href="#" data-view="categories" class="nav-link">Catégories</a></li>
+      <li><a href="#" data-view="math" class="nav-link">Maths</a></li>
+    </ul>
+  </nav>
+
+  <!-- ========== HOME VIEW ========== -->
+  <section class="view active" id="view-home">
+    <div class="hero">
+      <h1>Bienvenue sur <span class="highlight">Sacol</span> !</h1>
+      <p class="hero-sub">Colorie, apprends et amuse-toi !</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary btn-lg" data-action="go-categories">
+          🎨 Coloriage Libre
+        </button>
+        <button class="btn btn-secondary btn-lg" data-action="go-math">
+          🧮 Coloriage Maths
+        </button>
+      </div>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card" data-action="go-categories">
+        <div class="feature-icon">🐾</div>
+        <h3>Animaux</h3>
+        <p>Chat, chien, lion, éléphant...</p>
+      </div>
+      <div class="feature-card" data-action="go-categories">
+        <div class="feature-icon">🦸</div>
+        <h3>Super-héros</h3>
+        <p>Héros volant, robot, ninja...</p>
+      </div>
+      <div class="feature-card" data-action="go-math">
+        <div class="feature-icon">➕</div>
+        <h3>Additions</h3>
+        <p>Colorie en calculant !</p>
+      </div>
+      <div class="feature-card" data-action="go-math">
+        <div class="feature-icon">✖️</div>
+        <h3>Multiplications</h3>
+        <p>Apprends tes tables !</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CATEGORIES VIEW ========== -->
+  <section class="view" id="view-categories">
+    <div class="view-header">
+      <button class="btn btn-back" data-action="go-home">← Retour</button>
+      <h2>Catégories</h2>
+    </div>
+    <div class="categories-grid" id="categoriesGrid"></div>
+  </section>
+
+  <!-- ========== DRAWINGS VIEW ========== -->
+  <section class="view" id="view-drawings">
+    <div class="view-header">
+      <button class="btn btn-back" data-action="go-categories">← Retour</button>
+      <h2 id="drawingsTitle">Dessins</h2>
+    </div>
+    <div class="drawings-grid" id="drawingsGrid"></div>
+  </section>
+
+  <!-- ========== MATH MENU VIEW ========== -->
+  <section class="view" id="view-math">
+    <div class="view-header">
+      <button class="btn btn-back" data-action="go-home">← Retour</button>
+      <h2>Coloriage Maths</h2>
+    </div>
+    <div class="math-types-grid">
+      <button class="math-type-card" data-math-type="addition">
+        <span class="math-icon">➕</span>
+        <h3>Addition</h3>
+        <p>Additions simples</p>
+      </button>
+      <button class="math-type-card" data-math-type="subtraction">
+        <span class="math-icon">➖</span>
+        <h3>Soustraction</h3>
+        <p>Soustractions faciles</p>
+      </button>
+      <button class="math-type-card" data-math-type="multiplication">
+        <span class="math-icon">✖️</span>
+        <h3>Multiplication</h3>
+        <p>Tables de multiplication</p>
+      </button>
+      <button class="math-type-card" data-math-type="division">
+        <span class="math-icon">➗</span>
+        <h3>Division</h3>
+        <p>Divisions simples</p>
+      </button>
+    </div>
+    <div class="math-difficulty" id="mathDifficulty" hidden>
+      <h3>Choisis la difficulté :</h3>
+      <div class="difficulty-buttons">
+        <button class="btn btn-easy" data-difficulty="easy">⭐ Facile</button>
+        <button class="btn btn-medium" data-difficulty="medium">⭐⭐ Moyen</button>
+        <button class="btn btn-hard" data-difficulty="hard">⭐⭐⭐ Difficile</button>
+      </div>
+    </div>
+    <div class="math-drawings-grid" id="mathDrawingsGrid" hidden></div>
+  </section>
+
+  <!-- ========== COLORING VIEW ========== -->
+  <section class="view" id="view-coloring">
+    <div class="coloring-header">
+      <button class="btn btn-back" id="coloringBack">← Retour</button>
+      <h2 id="coloringTitle">Coloriage</h2>
+      <div class="coloring-header-actions">
+        <button class="btn btn-icon" id="btnSave" title="Sauvegarder PNG">💾</button>
+        <button class="btn btn-icon" id="btnReset" title="Recommencer">❌</button>
+      </div>
+    </div>
+
+    <div class="coloring-workspace">
+      <!-- Toolbar -->
+      <div class="toolbar" id="toolbar">
+        <!-- Tools -->
+        <div class="tool-section">
+          <h4>Outils</h4>
+          <div class="tool-buttons">
+            <button class="tool-btn active" data-tool="brush" title="Pinceau">🖌️</button>
+            <button class="tool-btn" data-tool="eraser" title="Gomme">🧽</button>
+            <button class="tool-btn" data-tool="fill" title="Remplissage">🪣</button>
+          </div>
+        </div>
+
+        <!-- Brush size -->
+        <div class="tool-section" id="brushSizeSection">
+          <h4>Taille pinceau</h4>
+          <input type="range" id="brushSize" min="2" max="50" value="8" class="slider">
+          <span id="brushSizeLabel" class="slider-label">8px</span>
+        </div>
+
+        <!-- Eraser size -->
+        <div class="tool-section" id="eraserSizeSection" hidden>
+          <h4>Taille gomme</h4>
+          <input type="range" id="eraserSize" min="5" max="80" value="20" class="slider">
+          <span id="eraserSizeLabel" class="slider-label">20px</span>
+        </div>
+
+        <!-- Color picker -->
+        <div class="tool-section" id="colorSection">
+          <h4>Couleur</h4>
+          <div class="color-picker-wrap">
+            <input type="color" id="colorPicker" value="#FF0000" class="color-input">
+            <span class="current-color" id="currentColorPreview"></span>
+          </div>
+        </div>
+
+        <!-- Favorite colors -->
+        <div class="tool-section" id="favColorsSection">
+          <h4>Favoris</h4>
+          <div class="fav-colors" id="favColors">
+            <button class="fav-color-btn" data-fav="0" style="background:#FF0000" title="Double-clic pour modifier"></button>
+            <button class="fav-color-btn" data-fav="1" style="background:#00AA00" title="Double-clic pour modifier"></button>
+            <button class="fav-color-btn" data-fav="2" style="background:#0066FF" title="Double-clic pour modifier"></button>
+            <button class="fav-color-btn" data-fav="3" style="background:#FFD700" title="Double-clic pour modifier"></button>
+          </div>
+        </div>
+
+        <!-- Math palette (hidden by default) -->
+        <div class="tool-section" id="mathPaletteSection" hidden>
+          <h4>Légende</h4>
+          <div class="math-palette" id="mathPalette"></div>
+        </div>
+
+        <!-- Undo/Redo -->
+        <div class="tool-section">
+          <h4>Actions</h4>
+          <div class="tool-buttons">
+            <button class="tool-btn" id="btnUndo" title="Annuler">↩️</button>
+            <button class="tool-btn" id="btnRedo" title="Rétablir">↪️</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Canvas area -->
+      <div class="canvas-container" id="canvasContainer">
+        <canvas id="drawingCanvas"></canvas>
+        <canvas id="outlineCanvas"></canvas>
+        <div class="canvas-cursor" id="canvasCursor"></div>
+      </div>
+    </div>
+
+    <!-- Math verify button -->
+    <div class="math-verify-bar" id="mathVerifyBar" hidden>
+      <button class="btn btn-primary btn-lg" id="btnVerify">✅ Vérifier mon coloriage</button>
+    </div>
+  </section>
+
+  <!-- ========== SUCCESS MODAL ========== -->
+  <div class="modal-overlay" id="successModal" hidden>
+    <div class="modal">
+      <div class="modal-icon">🎉</div>
+      <h2>Bravo !</h2>
+      <p id="successMessage">Tu as réussi ton coloriage !</p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="btnDownloadResult">💾 Télécharger</button>
+        <button class="btn btn-secondary" id="btnCloseSuccess">Continuer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== ERROR MODAL ========== -->
+  <div class="modal-overlay" id="errorModal" hidden>
+    <div class="modal">
+      <div class="modal-icon">🤔</div>
+      <h2>Presque !</h2>
+      <p id="errorMessage">Certaines zones ne sont pas correctes.</p>
+      <p class="error-details" id="errorDetails"></p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="btnRetry">🔄 Réessayer</button>
+        <button class="btn btn-secondary" id="btnShowAnswer">👀 Voir la solution</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== CONFETTI CANVAS ========== -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- Scripts -->
+  <script src="js/drawings-data.js"></script>
+  <script src="js/math-data.js"></script>
+  <script src="js/canvas-engine.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

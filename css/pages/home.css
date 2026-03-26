@@ -1,0 +1,50 @@
+/* Views system */
+.view {
+  display: none;
+  padding-top: var(--navbar-height);
+  min-height: 100vh;
+}
+.view.active { display: block; }
+
+.view-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Hero */
+.hero {
+  text-align: center;
+  padding: var(--space-3xl) var(--space-lg);
+  background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-accent-light) 50%, var(--color-secondary-light) 100%);
+}
+.hero h1 { color: var(--color-text); margin-bottom: var(--space-md); }
+.highlight {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub {
+  font-size: var(--font-size-xl);
+  color: var(--color-text);
+  margin-bottom: var(--space-xl);
+  opacity: 0.8;
+}
+.hero-actions {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Coloring view specific */
+#view-coloring { padding-top: var(--navbar-height); }
+#view-coloring .coloring-header {
+  position: sticky;
+  top: var(--navbar-height);
+  z-index: var(--z-toolbar);
+}
