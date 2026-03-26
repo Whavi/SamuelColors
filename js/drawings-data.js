@@ -1,5 +1,6 @@
 /* ============================================================
    drawings-data.js — SVG drawings & categories database
+   ALL shapes CLOSED with fill="white" — no gaps for bucket fill
    ============================================================ */
 
 const CATEGORIES = [
@@ -10,506 +11,400 @@ const CATEGORIES = [
   { id: 'super-heros',  name: 'Super-héros',   icon: '🦸', description: 'Héros originaux' }
 ];
 
-/* ----------------------------------------------------------
-   SVG helpers
-   ---------------------------------------------------------- */
 function svgWrap(inner, vb = '0 0 400 400') {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" width="400" height="400">${inner}</svg>`;
 }
 
-/* ----------------------------------------------------------
-   Animal SVGs — thick strokes, closed regions, child-friendly
-   ---------------------------------------------------------- */
+/* ==========================================================
+   ANIMAUX
+   ========================================================== */
+
 const SVG_CAT = svgWrap(`
   <g fill="none" stroke="#222" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
-    <!-- body top -->
-    <ellipse data-zone="body-top" cx="200" cy="240" rx="100" ry="50" fill="white"/>
-    <!-- body bottom -->
-    <ellipse data-zone="body-bottom" cx="200" cy="300" rx="100" ry="50" fill="white"/>
-    <!-- head -->
-    <circle data-zone="head" cx="200" cy="140" r="75" fill="white"/>
-    <!-- forehead spot -->
-    <circle data-zone="forehead" cx="200" cy="105" r="22" fill="white"/>
-    <!-- ears -->
-    <polygon data-zone="ear-left" points="145,80 120,25 175,60" fill="white"/>
-    <polygon data-zone="ear-right" points="255,80 280,25 225,60" fill="white"/>
-    <!-- inner ears -->
-    <polygon data-zone="ear-inner-left" points="147,75 132,42 167,63" fill="white"/>
-    <polygon data-zone="ear-inner-right" points="253,75 268,42 233,63" fill="white"/>
-    <!-- cheeks -->
-    <circle data-zone="cheek-left" cx="155" cy="155" r="20" fill="white"/>
-    <circle data-zone="cheek-right" cx="245" cy="155" r="20" fill="white"/>
-    <!-- eyes -->
-    <ellipse cx="175" cy="130" rx="12" ry="15" fill="#222"/>
-    <ellipse cx="225" cy="130" rx="12" ry="15" fill="#222"/>
-    <!-- nose -->
-    <polygon data-zone="nose" points="200,150 192,162 208,162" fill="white"/>
-    <!-- mouth -->
-    <path d="M192,162 Q200,175 208,162" fill="none"/>
-    <!-- whiskers -->
-    <line x1="130" y1="145" x2="170" y2="148"/>
-    <line x1="130" y1="158" x2="170" y2="158"/>
-    <line x1="230" y1="148" x2="270" y2="145"/>
-    <line x1="230" y1="158" x2="270" y2="158"/>
-    <!-- tail -->
-    <path data-zone="tail" d="M310,260 Q360,220 355,170 Q350,140 325,155 Q340,190 310,230" fill="white" stroke-width="6"/>
-    <!-- front paws -->
-    <ellipse data-zone="paw-fl" cx="150" cy="345" rx="32" ry="18" fill="white"/>
-    <ellipse data-zone="paw-fr" cx="250" cy="345" rx="32" ry="18" fill="white"/>
-    <!-- back paws -->
-    <ellipse data-zone="paw-bl" cx="120" cy="335" rx="22" ry="14" fill="white"/>
-    <ellipse data-zone="paw-br" cx="280" cy="335" rx="22" ry="14" fill="white"/>
-    <!-- belly spot -->
-    <ellipse data-zone="belly" cx="200" cy="280" rx="40" ry="25" fill="white"/>
+    <!-- ARRIÈRE : queue, pattes arrière -->
+    <path data-zone="tail" d="M300,275 Q340,248 348,208 Q352,182 338,178 Q325,180 330,202 Q328,238 300,268Z" fill="white"/>
+    <ellipse data-zone="paw-bl" cx="130" cy="345" rx="28" ry="14" fill="white"/>
+    <ellipse data-zone="paw-br" cx="270" cy="345" rx="28" ry="14" fill="white"/>
+    <!-- pattes avant (devant le corps, en bas) -->
+    <rect data-zone="paw-fl" x="158" y="310" width="28" height="48" rx="12" fill="white"/>
+    <rect data-zone="paw-fr" x="214" y="310" width="28" height="48" rx="12" fill="white"/>
+    <!-- corps (couvre haut pattes) -->
+    <ellipse data-zone="body" cx="200" cy="268" rx="98" ry="78" fill="white"/>
+    <!-- oreilles derrière tête -->
+    <polygon data-zone="ear-l" points="142,82 118,15 178,56" fill="white"/>
+    <polygon data-zone="ear-r" points="258,82 282,15 222,56" fill="white"/>
+    <!-- tête -->
+    <circle data-zone="head" cx="200" cy="138" r="72" fill="white"/>
+    <!-- visage -->
+    <ellipse cx="176" cy="125" rx="10" ry="13" fill="#222"/>
+    <ellipse cx="224" cy="125" rx="10" ry="13" fill="#222"/>
+    <polygon points="200,145 194,155 206,155" fill="#FF9999"/>
+    <path d="M194,155 Q200,165 206,155" fill="none"/>
+    <line x1="132" y1="140" x2="170" y2="143"/>
+    <line x1="132" y1="152" x2="170" y2="152"/>
+    <line x1="230" y1="143" x2="268" y2="140"/>
+    <line x1="230" y1="152" x2="268" y2="152"/>
   </g>
 `);
 
 const SVG_DOG = svgWrap(`
   <g fill="none" stroke="#222" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
-    <!-- body -->
-    <ellipse data-zone="body" cx="200" cy="265" rx="120" ry="85" fill="white"/>
-    <!-- belly -->
-    <ellipse data-zone="belly" cx="200" cy="280" rx="55" ry="35" fill="white"/>
-    <!-- collar -->
-    <rect data-zone="collar" x="155" y="195" width="90" height="18" rx="8" fill="white"/>
-    <!-- head -->
-    <circle data-zone="head" cx="200" cy="135" r="80" fill="white"/>
-    <!-- muzzle -->
-    <ellipse data-zone="muzzle" cx="200" cy="160" rx="35" ry="25" fill="white"/>
-    <!-- ears -->
-    <ellipse data-zone="ear-left" cx="130" cy="100" rx="28" ry="48" fill="white"/>
-    <ellipse data-zone="ear-right" cx="270" cy="100" rx="28" ry="48" fill="white"/>
-    <!-- eyes -->
-    <circle cx="175" cy="125" r="10" fill="#222"/>
-    <circle cx="225" cy="125" r="10" fill="#222"/>
-    <circle cx="178" cy="122" r="3" fill="white"/>
-    <circle cx="228" cy="122" r="3" fill="white"/>
-    <!-- nose -->
-    <ellipse cx="200" cy="155" rx="15" ry="10" fill="#333"/>
-    <!-- mouth -->
-    <path d="M185,168 Q200,185 215,168" fill="none"/>
-    <!-- tongue -->
-    <ellipse data-zone="tongue" cx="200" cy="190" rx="12" ry="14" fill="white"/>
-    <!-- front legs -->
-    <rect data-zone="leg-fl" x="135" y="320" width="35" height="55" rx="14" fill="white"/>
-    <rect data-zone="leg-fr" x="230" y="320" width="35" height="55" rx="14" fill="white"/>
-    <!-- back legs -->
-    <rect data-zone="leg-bl" x="100" y="310" width="30" height="50" rx="12" fill="white"/>
-    <rect data-zone="leg-br" x="270" y="310" width="30" height="50" rx="12" fill="white"/>
-    <!-- tail -->
-    <path data-zone="tail" d="M320,240 Q370,200 360,155 Q355,140 340,155 Q350,180 320,220" fill="white" stroke-width="6"/>
-    <!-- spot on back -->
-    <circle data-zone="spot" cx="230" cy="240" r="25" fill="white"/>
+    <!-- ARRIÈRE : queue -->
+    <path data-zone="tail" d="M312,248 Q345,222 352,185 Q355,165 340,162 Q328,165 332,188 Q330,218 308,240Z" fill="white"/>
+    <!-- pattes arrière -->
+    <rect data-zone="leg-bl" x="130" y="322" width="32" height="50" rx="14" fill="white"/>
+    <rect data-zone="leg-br" x="238" y="322" width="32" height="50" rx="14" fill="white"/>
+    <!-- pattes avant (visibles devant le corps en bas) -->
+    <rect data-zone="leg-fl" x="162" y="308" width="28" height="52" rx="12" fill="white"/>
+    <rect data-zone="leg-fr" x="210" y="308" width="28" height="52" rx="12" fill="white"/>
+    <!-- corps -->
+    <ellipse data-zone="body" cx="200" cy="268" rx="112" ry="78" fill="white"/>
+    <!-- oreilles tombantes -->
+    <path data-zone="ear-l" d="M135,108 Q110,60 95,110 Q88,145 120,148Z" fill="white"/>
+    <path data-zone="ear-r" d="M265,108 Q290,60 305,110 Q312,145 280,148Z" fill="white"/>
+    <!-- tête -->
+    <circle data-zone="head" cx="200" cy="138" r="76" fill="white"/>
+    <!-- museau -->
+    <ellipse cx="200" cy="165" rx="32" ry="22" fill="white" stroke-width="4"/>
+    <!-- yeux -->
+    <circle cx="178" cy="122" r="8" fill="#222"/>
+    <circle cx="222" cy="122" r="8" fill="#222"/>
+    <!-- nez -->
+    <ellipse cx="200" cy="155" rx="10" ry="7" fill="#333"/>
+    <!-- bouche -->
+    <path d="M190,178 Q200,190 210,178" fill="none"/>
   </g>
 `);
 
 const SVG_LION = svgWrap(`
   <g fill="none" stroke="#222" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
-    <!-- mane outer -->
-    <path data-zone="mane-outer" d="M200,55 Q215,30 230,60 Q250,35 260,65 Q280,45 285,75 Q305,65 300,95 Q320,90 305,120 Q320,125 305,145 Q318,155 300,170 Q310,185 295,195 Q305,210 285,215 Q290,235 270,230 Q265,250 245,240 Q235,258 215,245 Q200,260 185,245 Q165,258 155,240 Q135,250 130,230 Q110,235 115,215 Q95,210 105,195 Q90,185 100,170 Q82,155 95,145 Q80,125 95,120 Q80,90 100,95 Q95,65 115,75 Q120,45 140,65 Q150,35 170,60 Q185,30 200,55Z" fill="white"/>
-    <!-- mane inner ring -->
-    <circle data-zone="mane-inner" cx="200" cy="160" r="95" fill="white"/>
-    <!-- face -->
-    <circle data-zone="face" cx="200" cy="165" r="68" fill="white"/>
-    <!-- forehead -->
-    <circle data-zone="forehead" cx="200" cy="130" r="25" fill="white"/>
-    <!-- eye areas -->
-    <circle data-zone="eye-area-l" cx="178" cy="150" r="16" fill="white"/>
-    <circle data-zone="eye-area-r" cx="222" cy="150" r="16" fill="white"/>
-    <!-- eyes -->
-    <ellipse cx="178" cy="150" rx="8" ry="10" fill="#222"/>
-    <ellipse cx="222" cy="150" rx="8" ry="10" fill="#222"/>
-    <!-- nose -->
-    <polygon data-zone="nose" points="200,172 190,185 210,185" fill="white"/>
-    <!-- mouth area -->
-    <ellipse data-zone="mouth-area" cx="200" cy="195" rx="25" ry="12" fill="white"/>
-    <path d="M192,185 Q200,198 208,185"/>
-    <!-- body upper -->
-    <ellipse data-zone="body-upper" cx="200" cy="290" rx="78" ry="40" fill="white"/>
-    <!-- body lower -->
-    <ellipse data-zone="body-lower" cx="200" cy="330" rx="70" ry="30" fill="white"/>
-    <!-- belly -->
-    <ellipse data-zone="belly" cx="200" cy="310" rx="35" ry="22" fill="white"/>
-    <!-- paws -->
-    <ellipse data-zone="paw-fl" cx="145" cy="365" rx="30" ry="16" fill="white"/>
-    <ellipse data-zone="paw-fr" cx="255" cy="365" rx="30" ry="16" fill="white"/>
-    <ellipse data-zone="paw-bl" cx="160" cy="355" rx="20" ry="12" fill="white"/>
-    <ellipse data-zone="paw-br" cx="240" cy="355" rx="20" ry="12" fill="white"/>
-    <!-- tail -->
-    <path data-zone="tail" d="M280,310 Q335,290 345,255 Q350,238 340,235 Q330,238 335,260 Q330,280 280,295" fill="white" stroke-width="5"/>
-    <!-- tail tip -->
-    <circle data-zone="tail-tip" cx="340" cy="235" r="14" fill="white"/>
+    <!-- ARRIÈRE : queue avec touffe -->
+    <path data-zone="tail" d="M276,300 Q330,278 342,240 Q348,220 334,218 Q322,222 328,245 Q318,272 276,292Z" fill="white"/>
+    <circle cx="340" cy="222" r="12" fill="white" stroke-width="5"/>
+    <!-- pattes (derrière corps) -->
+    <rect data-zone="paw-l" x="138" y="330" width="32" height="45" rx="14" fill="white"/>
+    <rect data-zone="paw-r" x="230" y="330" width="32" height="45" rx="14" fill="white"/>
+    <!-- corps horizontal (lion couché/debout) -->
+    <ellipse data-zone="body" cx="200" cy="305" rx="82" ry="52" fill="white"/>
+    <!-- crinière (grande, en zigzag autour de la face) -->
+    <path data-zone="mane" d="M200,52 Q216,28 232,55 Q252,30 262,60 Q284,38 286,70 Q308,55 304,88 Q324,78 315,112 Q332,110 318,140 Q334,145 315,168 Q328,176 310,192 Q318,208 298,212 Q302,232 278,228 Q276,248 256,240 Q248,258 230,245 Q216,260 200,245 Q184,260 170,245 Q152,258 144,240 Q124,248 122,228 Q98,232 102,212 Q82,208 90,192 Q72,176 85,168 Q66,145 82,140 Q68,110 85,112 Q76,78 96,88 Q92,55 114,70 Q116,38 138,60 Q148,30 168,55 Q184,28 200,52Z" fill="white"/>
+    <!-- face ronde -->
+    <circle data-zone="face" cx="200" cy="158" r="68" fill="white"/>
+    <!-- yeux -->
+    <ellipse cx="178" cy="145" rx="9" ry="11" fill="#222"/>
+    <ellipse cx="222" cy="145" rx="9" ry="11" fill="#222"/>
+    <!-- museau -->
+    <ellipse cx="200" cy="172" rx="22" ry="16" fill="white" stroke-width="4"/>
+    <!-- nez -->
+    <polygon points="200,166 195,175 205,175" fill="#CC7744"/>
+    <!-- bouche -->
+    <path d="M195,175 Q200,185 205,175" fill="none"/>
+    <!-- petits traits de moustache -->
+    <line x1="162" y1="168" x2="178" y2="170"/>
+    <line x1="222" y1="170" x2="238" y2="168"/>
   </g>
 `);
 
-const SVG_ELEPHANT = svgWrap(`
-  <g fill="none" stroke="#222" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
-    <!-- body upper -->
-    <ellipse data-zone="body-upper" cx="220" cy="230" rx="120" ry="60" fill="white"/>
-    <!-- body lower / belly -->
-    <ellipse data-zone="belly" cx="220" cy="290" rx="110" ry="50" fill="white"/>
-    <!-- back -->
-    <ellipse data-zone="back" cx="280" cy="220" rx="55" ry="40" fill="white"/>
-    <!-- head -->
-    <circle data-zone="head" cx="150" cy="150" r="75" fill="white"/>
-    <!-- forehead -->
-    <circle data-zone="forehead" cx="150" cy="115" r="30" fill="white"/>
-    <!-- ear outer -->
-    <ellipse data-zone="ear-outer" cx="80" cy="155" rx="50" ry="65" fill="white"/>
-    <!-- ear inner -->
-    <ellipse data-zone="ear-inner" cx="80" cy="155" rx="30" ry="40" fill="white"/>
-    <!-- cheek -->
-    <circle data-zone="cheek" cx="170" cy="175" r="22" fill="white"/>
-    <!-- eye -->
-    <circle cx="165" cy="135" r="8" fill="#222"/>
-    <circle cx="168" cy="132" r="3" fill="white"/>
-    <!-- trunk upper -->
-    <path data-zone="trunk-upper" d="M145,205 Q130,240 125,270" fill="none" stroke-width="18"/>
-    <!-- trunk lower -->
-    <path data-zone="trunk-lower" d="M125,270 Q120,300 135,320 Q150,325 155,310" fill="none" stroke-width="16"/>
-    <!-- tusk -->
-    <path data-zone="tusk" d="M175,200 Q195,235 185,260" fill="none" stroke-width="6" stroke="#222"/>
-    <!-- legs -->
-    <rect data-zone="leg-fl" x="115" y="318" width="42" height="58" rx="16" fill="white"/>
-    <rect data-zone="leg-fr" x="170" y="322" width="42" height="58" rx="16" fill="white"/>
-    <rect data-zone="leg-bl" x="245" y="322" width="42" height="58" rx="16" fill="white"/>
-    <rect data-zone="leg-br" x="295" y="318" width="42" height="58" rx="16" fill="white"/>
-    <!-- toenails -->
-    <ellipse data-zone="foot-fl" cx="136" cy="378" rx="22" ry="8" fill="white"/>
-    <ellipse data-zone="foot-fr" cx="191" cy="382" rx="22" ry="8" fill="white"/>
-    <ellipse data-zone="foot-bl" cx="266" cy="382" rx="22" ry="8" fill="white"/>
-    <ellipse data-zone="foot-br" cx="316" cy="378" rx="22" ry="8" fill="white"/>
-    <!-- tail -->
-    <path data-zone="tail" d="M340,235 Q370,220 375,195 Q378,180 368,178" fill="none" stroke-width="6"/>
+const SVG_TURTLE = svgWrap(`
+  <g fill="none" stroke="#222" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Patte avant gauche -->
+    <path data-zone="leg-fl" d="M148,200 Q128,214 118,236 Q114,252 126,258 Q140,262 150,244 Q160,224 166,208 Z" fill="white"/>
+    <!-- Patte avant droite -->
+    <path data-zone="leg-fr" d="M190,208 Q174,222 170,248 Q168,264 182,266 Q196,266 200,248 Q204,230 202,212 Z" fill="white"/>
+    <!-- Patte arrière gauche -->
+    <path data-zone="leg-bl" d="M318,204 Q304,218 300,244 Q298,260 312,262 Q326,262 330,244 Q334,226 332,208 Z" fill="white"/>
+    <!-- Patte arrière droite -->
+    <path data-zone="leg-br" d="M360,196 Q348,210 346,236 Q344,254 358,256 Q372,256 374,238 Q378,218 372,200 Z" fill="white"/>
+    <!-- Queue -->
+    <path d="M390,170 Q420,162 432,148 Q438,138 430,132 Q420,128 410,140 Q398,154 386,168 Z" fill="white"/>
+    <!-- Rebord carapace -->
+    <ellipse data-zone="shell" cx="262" cy="168" rx="142" ry="78" fill="white" stroke-width="5"/>
+    <!-- Dôme carapace -->
+    <ellipse cx="262" cy="154" rx="128" ry="66" fill="white" stroke-width="5"/>
+    <!-- Plaques -->
+    <polygon fill="white" stroke-width="3.5" points="262,104 302,126 302,168 262,190 222,168 222,126"/>
+    <polygon fill="white" stroke-width="3.5" points="222,126 188,108 176,140 196,162 222,168"/>
+    <polygon fill="white" stroke-width="3.5" points="302,126 336,108 348,140 328,162 302,168"/>
+    <polygon fill="white" stroke-width="3.5" points="222,168 196,162 184,190 208,204 234,198"/>
+    <polygon fill="white" stroke-width="3.5" points="302,168 328,162 340,190 316,204 290,198"/>
+    <polygon fill="white" stroke-width="3.5" points="234,198 208,204 218,220 262,224 306,220 316,204 290,198 262,190"/>
+    <!-- Tête -->
+    <ellipse data-zone="head" cx="100" cy="162" rx="52" ry="40" fill="white"/>
+    <!-- Oeil -->
+    <circle cx="84" cy="148" r="11" fill="#222" stroke="none"/>
+    <circle cx="81" cy="145" r="4" fill="white" stroke="none"/>
+    <!-- Sourire -->
+    <path d="M62,172 Q82,190 108,178" fill="none" stroke-width="4"/>
   </g>
 `);
 
 const SVG_FISH = svgWrap(`
   <g fill="none" stroke="#222" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
-    <!-- body front -->
-    <ellipse data-zone="body-front" cx="150" cy="200" rx="70" ry="65" fill="white"/>
-    <!-- body middle -->
-    <ellipse data-zone="body-middle" cx="220" cy="200" rx="65" ry="55" fill="white"/>
-    <!-- body back -->
-    <ellipse data-zone="body-back" cx="280" cy="200" rx="50" ry="45" fill="white"/>
-    <!-- tail top -->
-    <polygon data-zone="tail-top" points="320,200 385,145 385,200" fill="white"/>
-    <!-- tail bottom -->
-    <polygon data-zone="tail-bottom" points="320,200 385,200 385,255" fill="white"/>
-    <!-- dorsal fin -->
-    <path data-zone="fin-top" d="M155,140 Q195,55 235,140" fill="white"/>
-    <!-- bottom fin -->
-    <path data-zone="fin-bottom" d="M175,260 Q200,325 230,260" fill="white"/>
-    <!-- side fin -->
-    <path data-zone="fin-side" d="M140,220 Q115,260 155,260" fill="white"/>
-    <!-- eye ring -->
-    <circle data-zone="eye-ring" cx="115" cy="185" r="20" fill="white" stroke-width="5"/>
-    <!-- eye -->
-    <circle cx="115" cy="185" r="8" fill="#222"/>
-    <circle cx="118" cy="182" r="3" fill="white"/>
-    <!-- mouth -->
-    <path d="M72,200 Q80,210 72,220"/>
-    <!-- scales pattern -->
-    <circle data-zone="scale1" cx="170" cy="185" r="12" fill="white" stroke-width="3"/>
-    <circle data-zone="scale2" cx="200" cy="200" r="12" fill="white" stroke-width="3"/>
-    <circle data-zone="scale3" cx="230" cy="185" r="12" fill="white" stroke-width="3"/>
-    <circle data-zone="scale4" cx="260" cy="200" r="12" fill="white" stroke-width="3"/>
-    <circle data-zone="scale5" cx="185" cy="215" r="12" fill="white" stroke-width="3"/>
-    <circle data-zone="scale6" cx="245" cy="215" r="12" fill="white" stroke-width="3"/>
+    <!-- ARRIÈRE : nageoires derrière le corps -->
+    <path data-zone="fin-top" d="M180,128 Q205,60 235,90 Q248,105 240,128Z" fill="white"/>
+    <path data-zone="fin-bottom" d="M180,272 Q200,335 230,310 Q245,295 235,272Z" fill="white"/>
+    <path data-zone="fin-side" d="M145,220 Q112,252 120,272 Q132,278 155,252 Q162,238 155,222Z" fill="white"/>
+    <!-- queue -->
+    <polygon data-zone="tail" points="310,200 375,138 375,262" fill="white"/>
+    <!-- corps ovale (couvre base nageoires) -->
+    <ellipse data-zone="body" cx="190" cy="200" rx="125" ry="72" fill="white"/>
+    <!-- oeil grand et expressif -->
+    <circle cx="118" cy="182" r="20" fill="white" stroke-width="5"/>
+    <circle cx="120" cy="180" r="10" fill="#222"/>
+    <circle cx="124" cy="176" r="4" fill="white"/>
+    <!-- bouche souriante -->
+    <path d="M72,200 Q62,212 72,225" fill="none" stroke-width="4"/>
+    <!-- écailles déco -->
+    <path d="M172,158 Q182,150 192,158" fill="none" stroke-width="3"/>
+    <path d="M202,172 Q212,164 222,172" fill="none" stroke-width="3"/>
+    <path d="M232,158 Q242,150 252,158" fill="none" stroke-width="3"/>
+    <path d="M180,198 Q190,190 200,198" fill="none" stroke-width="3"/>
+    <path d="M218,195 Q228,187 238,195" fill="none" stroke-width="3"/>
+    <path d="M190,232 Q200,224 210,232" fill="none" stroke-width="3"/>
+    <path d="M228,228 Q238,220 248,228" fill="none" stroke-width="3"/>
   </g>
 `);
 
 const SVG_BUTTERFLY = svgWrap(`
   <g fill="none" stroke="#222" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-    <!-- left top wing -->
-    <path data-zone="wing-lt" d="M200,180 Q120,80 60,140 Q30,180 80,220 Q130,250 200,200Z" fill="white"/>
-    <!-- right top wing -->
-    <path data-zone="wing-rt" d="M200,180 Q280,80 340,140 Q370,180 320,220 Q270,250 200,200Z" fill="white"/>
-    <!-- left bottom wing -->
-    <path data-zone="wing-lb" d="M200,210 Q130,260 100,310 Q85,350 130,340 Q170,330 200,270Z" fill="white"/>
-    <!-- right bottom wing -->
-    <path data-zone="wing-rb" d="M200,210 Q270,260 300,310 Q315,350 270,340 Q230,330 200,270Z" fill="white"/>
-    <!-- wing patterns -->
-    <circle data-zone="pattern-lt" cx="130" cy="165" r="22" fill="white"/>
-    <circle data-zone="pattern-rt" cx="270" cy="165" r="22" fill="white"/>
-    <circle data-zone="pattern-lb" cx="150" cy="290" r="15" fill="white"/>
-    <circle data-zone="pattern-rb" cx="250" cy="290" r="15" fill="white"/>
-    <!-- body -->
-    <ellipse cx="200" cy="230" rx="12" ry="65" fill="#333" stroke="#222" stroke-width="4"/>
-    <!-- head -->
-    <circle cx="200" cy="155" r="14" fill="#333"/>
-    <!-- antennae -->
-    <path d="M195,142 Q170,100 155,85" stroke-width="3"/>
-    <circle cx="155" cy="85" r="5" fill="#333"/>
-    <path d="M205,142 Q230,100 245,85" stroke-width="3"/>
-    <circle cx="245" cy="85" r="5" fill="#333"/>
+    <!-- ARRIÈRE : ailes (derrière le corps) -->
+    <path data-zone="wing-lt" d="M200,176 Q116,76 56,136 Q26,176 76,220 Q126,250 200,196Z" fill="white"/>
+    <path data-zone="wing-rt" d="M200,176 Q284,76 344,136 Q374,176 324,220 Q274,250 200,196Z" fill="white"/>
+    <path data-zone="wing-lb" d="M200,206 Q126,256 96,310 Q80,350 126,340 Q166,330 200,266Z" fill="white"/>
+    <path data-zone="wing-rb" d="M200,206 Q274,256 304,310 Q320,350 274,340 Q234,330 200,266Z" fill="white"/>
+    <!-- spots sur les ailes -->
+    <circle data-zone="spot-lt" cx="126" cy="166" r="20" fill="white"/>
+    <circle data-zone="spot-rt" cx="274" cy="166" r="20" fill="white"/>
+    <circle data-zone="spot-lb" cx="146" cy="290" r="14" fill="white"/>
+    <circle data-zone="spot-rb" cx="254" cy="290" r="14" fill="white"/>
+    <!-- DEVANT : corps + tête (couvre les ailes au centre) -->
+    <ellipse cx="200" cy="226" rx="11" ry="62" fill="#333" stroke-width="4"/>
+    <circle cx="200" cy="154" r="13" fill="#333"/>
+    <!-- antennes -->
+    <path d="M194,142 Q166,96 150,80" stroke-width="3"/><circle cx="150" cy="80" r="5" fill="#333"/>
+    <path d="M206,142 Q234,96 250,80" stroke-width="3"/><circle cx="250" cy="80" r="5" fill="#333"/>
   </g>
 `);
 
-/* ----------------------------------------------------------
-   Super-hero SVGs — original characters, no copyright
-   ---------------------------------------------------------- */
+/* ==========================================================
+   SUPER-HÉROS — personnages bien dessinés, formes connectées
+   ========================================================== */
+
 const SVG_HERO_FLYING = svgWrap(`
-  <g fill="none" stroke="#222" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-    <!-- cape -->
-    <path data-zone="cape" d="M160,170 Q100,260 80,370 L200,320 L320,370 Q300,260 240,170Z" fill="white"/>
-    <!-- body -->
-    <rect data-zone="torso" x="155" y="140" width="90" height="100" rx="15" fill="white"/>
-    <!-- chest emblem -->
-    <polygon data-zone="emblem" points="200,155 188,185 200,178 212,185" fill="white" stroke-width="3"/>
-    <!-- head -->
-    <circle data-zone="head" cx="200" cy="105" r="45" fill="white"/>
-    <!-- mask -->
-    <path data-zone="mask" d="M165,95 Q200,80 235,95 Q235,110 200,115 Q165,110 165,95Z" fill="white" stroke-width="3"/>
-    <!-- eyes -->
-    <ellipse cx="185" cy="100" rx="8" ry="6" fill="#222"/>
-    <ellipse cx="215" cy="100" rx="8" ry="6" fill="#222"/>
-    <!-- belt -->
-    <rect data-zone="belt" x="155" y="230" width="90" height="15" rx="5" fill="white" stroke-width="3"/>
-    <!-- arms stretched -->
-    <path data-zone="arm-l" d="M155,165 L80,120 L65,115" stroke-width="8"/>
-    <circle cx="62" cy="113" r="10" fill="white"/>
-    <path data-zone="arm-r" d="M245,165 L320,120 L335,115" stroke-width="8"/>
-    <circle cx="338" cy="113" r="10" fill="white"/>
-    <!-- legs -->
-    <path data-zone="leg-l" d="M180,240 L155,340 L145,360" stroke-width="8"/>
-    <ellipse cx="142" cy="362" rx="14" ry="8" fill="white"/>
-    <path data-zone="leg-r" d="M220,240 L245,340 L255,360" stroke-width="8"/>
-    <ellipse cx="258" cy="362" rx="14" ry="8" fill="white"/>
+  <g fill="none" stroke="#222" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- ARRIÈRE : cape -->
+    <path data-zone="cape" d="M148,170 Q100,260 75,380 L200,325 L325,380 Q300,260 252,170Z" fill="white"/>
+    <!-- jambes (derrière le corps) -->
+    <path data-zone="leg-l" d="M165,310 L158,358 Q155,372 170,372 L190,372 Q198,372 195,358 L190,310Z" fill="white"/>
+    <path data-zone="leg-r" d="M210,310 L205,358 Q202,372 218,372 L238,372 Q245,372 242,358 L235,310Z" fill="white"/>
+    <!-- bras (derrière le corps) -->
+    <path data-zone="arm-l" d="M135,200 Q95,180 80,200 Q70,215 85,225 Q100,232 135,225Z" fill="white"/>
+    <path data-zone="arm-r" d="M265,200 Q305,180 320,200 Q330,215 315,225 Q300,232 265,225Z" fill="white"/>
+    <!-- MILIEU : corps (couvre haut jambes + base bras) -->
+    <ellipse data-zone="body" cx="200" cy="240" rx="65" ry="80" fill="white"/>
+    <!-- ceinture (au niveau du ventre, pas trop large) -->
+    <rect x="148" y="268" width="104" height="12" rx="5" fill="white" stroke-width="3"/>
+    <polygon points="200,195 190,215 200,210 210,215" fill="white" stroke-width="3"/>
+    <!-- masque derrière la tête -->
+    <path data-zone="mask" d="M152,100 Q200,80 248,100 Q248,120 200,128 Q152,120 152,100Z" fill="white" stroke-width="4"/>
+    <!-- DEVANT : tête (couvre tout) -->
+    <circle data-zone="head" cx="200" cy="115" r="65" fill="white"/>
+    <!-- masque redessiné par-dessus la tête -->
+    <path d="M152,100 Q200,80 248,100 Q248,120 200,128 Q152,120 152,100Z" fill="none" stroke-width="4"/>
+    <!-- yeux -->
+    <ellipse cx="185" cy="108" rx="8" ry="7" fill="#222"/>
+    <ellipse cx="215" cy="108" rx="8" ry="7" fill="#222"/>
   </g>
 `);
 
 const SVG_ROBOT_HERO = svgWrap(`
-  <g fill="none" stroke="#222" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-    <!-- body -->
-    <rect data-zone="body" x="140" y="165" width="120" height="130" rx="15" fill="white"/>
-    <!-- chest panel -->
-    <rect data-zone="chest" x="165" y="185" width="70" height="50" rx="8" fill="white" stroke-width="3"/>
-    <circle data-zone="core" cx="200" cy="210" r="15" fill="white" stroke-width="3"/>
-    <!-- head -->
-    <rect data-zone="head" x="150" y="65" width="100" height="85" rx="20" fill="white"/>
-    <!-- antenna -->
-    <line x1="200" y1="65" x2="200" y2="40"/>
-    <circle data-zone="antenna" cx="200" cy="35" r="8" fill="white"/>
-    <!-- eyes -->
-    <rect x="170" y="90" width="22" height="18" rx="4" fill="#44DDFF"/>
-    <rect x="208" y="90" width="22" height="18" rx="4" fill="#44DDFF"/>
-    <!-- mouth -->
-    <rect x="178" y="122" width="44" height="10" rx="4" fill="none" stroke-width="3"/>
-    <line x1="190" y1="122" x2="190" y2="132" stroke-width="2"/>
-    <line x1="200" y1="122" x2="200" y2="132" stroke-width="2"/>
-    <line x1="210" y1="122" x2="210" y2="132" stroke-width="2"/>
-    <!-- arms -->
-    <rect data-zone="arm-l" x="90" y="175" width="45" height="25" rx="10" fill="white"/>
-    <circle data-zone="hand-l" cx="85" cy="188" r="16" fill="white"/>
-    <rect data-zone="arm-r" x="265" y="175" width="45" height="25" rx="10" fill="white"/>
-    <circle data-zone="hand-r" cx="315" cy="188" r="16" fill="white"/>
-    <!-- legs -->
-    <rect data-zone="leg-l" x="155" y="300" width="35" height="60" rx="10" fill="white"/>
-    <rect data-zone="leg-r" x="210" y="300" width="35" height="60" rx="10" fill="white"/>
-    <!-- feet -->
-    <ellipse data-zone="foot-l" cx="172" cy="365" rx="25" ry="12" fill="white"/>
-    <ellipse data-zone="foot-r" cx="228" cy="365" rx="25" ry="12" fill="white"/>
-    <!-- bolts -->
-    <circle cx="148" cy="200" r="5" fill="#888"/>
-    <circle cx="252" cy="200" r="5" fill="#888"/>
+  <g fill="none" stroke="#222" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- ARRIÈRE : jambes + pieds connectés -->
+    <path data-zone="leg-l" d="M160,298 L160,348 Q158,368 172,370 L192,370 Q200,368 198,348 L198,298Z" fill="white"/>
+    <path data-zone="leg-r" d="M202,298 L202,348 Q200,368 214,370 L234,370 Q242,368 240,348 L240,298Z" fill="white"/>
+    <!-- bras + mains (derrière le corps) -->
+    <path data-zone="arm-l" d="M135,182 L95,182 Q78,182 78,200 L78,225 Q78,242 95,242 L135,242Z" fill="white"/>
+    <circle cx="68" cy="212" r="18" fill="white"/>
+    <path data-zone="arm-r" d="M265,182 L305,182 Q322,182 322,200 L322,225 Q322,242 305,242 L265,242Z" fill="white"/>
+    <circle cx="332" cy="212" r="18" fill="white"/>
+    <!-- corps -->
+    <rect data-zone="body" x="135" y="162" width="130" height="138" rx="18" fill="white"/>
+    <!-- coeur énergie -->
+    <circle data-zone="core" cx="200" cy="220" r="18" fill="white" stroke-width="3"/>
+    <!-- boulons -->
+    <circle cx="145" cy="212" r="5" fill="#888"/>
+    <circle cx="255" cy="212" r="5" fill="#888"/>
+    <!-- antenne -->
+    <circle data-zone="antenna" cx="200" cy="28" r="12" fill="white"/>
+    <line x1="200" y1="40" x2="200" y2="50" stroke-width="4"/>
+    <!-- tête -->
+    <rect data-zone="head" x="145" y="48" width="110" height="100" rx="22" fill="white"/>
+    <!-- yeux -->
+    <rect x="168" y="80" width="22" height="26" rx="5" fill="#44DDFF"/>
+    <rect x="210" y="80" width="22" height="26" rx="5" fill="#44DDFF"/>
+    <!-- bouche -->
+    <rect x="178" y="120" width="44" height="12" rx="4" fill="none" stroke-width="3"/>
+    <line x1="190" y1="120" x2="190" y2="132" stroke-width="2"/>
+    <line x1="200" y1="120" x2="200" y2="132" stroke-width="2"/>
+    <line x1="210" y1="120" x2="210" y2="132" stroke-width="2"/>
   </g>
 `);
 
 const SVG_NINJA = svgWrap(`
-  <g fill="none" stroke="#222" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-    <!-- body -->
-    <path data-zone="body" d="M150,180 L140,310 Q200,330 260,310 L250,180Z" fill="white"/>
-    <!-- head -->
-    <circle data-zone="head" cx="200" cy="120" r="60" fill="white"/>
-    <!-- bandana -->
-    <path data-zone="bandana" d="M140,110 Q200,85 260,110 Q260,130 200,125 Q140,130 140,110Z" fill="white"/>
-    <!-- bandana tails -->
-    <path data-zone="bandana-tail" d="M260,115 Q290,108 310,120 Q300,130 280,125" fill="white" stroke-width="4"/>
-    <!-- eyes -->
-    <ellipse cx="182" cy="118" rx="10" ry="6" fill="#222"/>
-    <ellipse cx="218" cy="118" rx="10" ry="6" fill="#222"/>
-    <!-- scarf covering mouth -->
-    <path data-zone="scarf" d="M150,135 Q200,155 250,135 Q260,160 200,170 Q140,160 150,135Z" fill="white"/>
-    <!-- belt/sash -->
-    <path data-zone="belt" d="M142,240 Q200,255 258,240" stroke-width="8" fill="none"/>
-    <!-- arms -->
-    <path data-zone="arm-l" d="M150,195 L90,240 L70,230" stroke-width="7"/>
-    <!-- star/shuriken in hand -->
-    <polygon data-zone="star" points="70,230 60,220 65,232 53,228 65,235 58,245 68,237 70,250 72,237 82,245" fill="white" stroke-width="2"/>
-    <path data-zone="arm-r" d="M250,195 L310,170 L330,165" stroke-width="7"/>
-    <!-- sword on back -->
-    <line x1="230" y1="100" x2="270" y2="320" stroke-width="4"/>
-    <rect x="225" y="92" width="12" height="20" rx="3" fill="white" stroke-width="3"/>
-    <!-- legs -->
-    <path data-zone="leg-l" d="M170,310 L160,370 L150,380" stroke-width="7"/>
-    <path data-zone="leg-r" d="M230,310 L240,370 L250,380" stroke-width="7"/>
-    <!-- feet -->
-    <ellipse data-zone="foot-l" cx="146" cy="382" rx="18" ry="8" fill="white"/>
-    <ellipse data-zone="foot-r" cx="254" cy="382" rx="18" ry="8" fill="white"/>
+  <g fill="none" stroke="#222" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- ARRIÈRE : jambes -->
+    <path data-zone="leg-l" d="M165,328 L160,370 Q158,382 172,382 L192,382 Q200,382 198,370 L195,328Z" fill="white"/>
+    <path data-zone="leg-r" d="M205,328 L202,370 Q200,382 215,382 L235,382 Q242,382 240,370 L235,328Z" fill="white"/>
+    <!-- bras (derrière le corps) -->
+    <path data-zone="arm-l" d="M148,190 Q108,195 85,215 Q75,228 90,235 Q105,238 140,225Z" fill="white"/>
+    <path data-zone="arm-r" d="M252,190 Q292,195 315,215 Q325,228 310,235 Q295,238 260,225Z" fill="white"/>
+    <!-- MILIEU : corps (couvre haut jambes + base bras) -->
+    <path data-zone="body" d="M148,175 L140,320 Q140,330 155,330 L245,330 Q260,330 260,320 L252,175Z" fill="white"/>
+    <!-- ceinture -->
+    <rect data-zone="belt" x="142" y="248" width="116" height="14" rx="6" fill="white"/>
+    <!-- bandeau tail derrière tête -->
+    <path data-zone="bandana-tail" d="M262,110 L310,100 Q320,105 315,115 L268,120Z" fill="white"/>
+    <!-- DEVANT : tête (couvre intersection corps) -->
+    <circle data-zone="head" cx="200" cy="118" r="62" fill="white"/>
+    <!-- bandeau par-dessus la tête -->
+    <path data-zone="bandana" d="M138,105 Q200,78 262,105 L262,125 Q200,115 138,125Z" fill="white"/>
+    <!-- foulard -->
+    <path data-zone="scarf" d="M145,132 Q200,155 255,132 Q262,160 200,170 Q138,160 145,132Z" fill="white"/>
+    <!-- yeux -->
+    <ellipse cx="182" cy="115" rx="10" ry="6" fill="#222"/>
+    <ellipse cx="218" cy="115" rx="10" ry="6" fill="#222"/>
   </g>
 `);
 
 const SVG_SUPER_CAT = svgWrap(`
-  <g fill="none" stroke="#222" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-    <!-- cape -->
-    <path data-zone="cape" d="M155,190 Q100,280 90,380 L200,340 L310,380 Q300,280 245,190Z" fill="white"/>
-    <!-- body -->
-    <ellipse data-zone="body" cx="200" cy="260" rx="65" ry="80" fill="white"/>
-    <!-- head -->
-    <circle data-zone="head" cx="200" cy="140" r="65" fill="white"/>
-    <!-- ears -->
-    <polygon data-zone="ear-l" points="155,90 135,35 175,70" fill="white"/>
-    <polygon data-zone="ear-r" points="245,90 265,35 225,70" fill="white"/>
-    <!-- mask -->
-    <path data-zone="mask" d="M155,125 Q200,108 245,125 Q245,145 200,150 Q155,145 155,125Z" fill="white" stroke-width="4"/>
-    <!-- eyes -->
-    <ellipse cx="180" cy="132" rx="10" ry="12" fill="#44FF44"/>
-    <ellipse cx="180" cy="132" rx="5" ry="10" fill="#222"/>
-    <ellipse cx="220" cy="132" rx="10" ry="12" fill="#44FF44"/>
-    <ellipse cx="220" cy="132" rx="5" ry="10" fill="#222"/>
-    <!-- nose -->
-    <polygon points="200,150 194,160 206,160" fill="#FF9999"/>
-    <!-- emblem on chest -->
-    <path data-zone="emblem" d="M185,220 L200,200 L215,220 L200,240Z" fill="white" stroke-width="3"/>
-    <!-- belt -->
-    <ellipse data-zone="belt" cx="200" cy="300" rx="65" ry="10" fill="white" stroke-width="3"/>
-    <!-- arms -->
-    <path data-zone="arm-l" d="M135,220 Q100,240 80,230" stroke-width="7"/>
-    <circle cx="77" cy="228" r="12" fill="white"/>
-    <path data-zone="arm-r" d="M265,220 Q300,200 320,195" stroke-width="7"/>
-    <circle cx="323" cy="193" r="12" fill="white"/>
-    <!-- legs -->
-    <ellipse data-zone="paw-l" cx="170" cy="345" rx="25" ry="15" fill="white"/>
-    <ellipse data-zone="paw-r" cx="230" cy="345" rx="25" ry="15" fill="white"/>
-    <!-- tail -->
-    <path data-zone="tail" d="M265,290 Q310,270 330,240 Q340,230 330,225" stroke-width="7" fill="none"/>
+  <g fill="none" stroke="#222" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- ARRIÈRE : cape -->
+    <path data-zone="cape" d="M148,185 Q95,275 80,385 L200,335 L320,385 Q305,275 252,185Z" fill="white"/>
+    <!-- queue + pattes -->
+    <path data-zone="tail" d="M262,275 Q302,255 315,222 Q322,205 308,202 Q296,206 300,228 Q292,255 262,268Z" fill="white"/>
+    <rect data-zone="paw-l" x="155" y="315" width="28" height="42" rx="12" fill="white"/>
+    <rect data-zone="paw-r" x="217" y="315" width="28" height="42" rx="12" fill="white"/>
+    <!-- corps -->
+    <ellipse data-zone="body" cx="200" cy="258" rx="65" ry="78" fill="white"/>
+    <!-- ceinture -->
+    <rect x="138" y="298" width="124" height="11" rx="5" fill="white" stroke-width="3"/>
+    <!-- emblème losange -->
+    <path d="M188,225 L200,208 L212,225 L200,242Z" fill="none" stroke-width="3"/>
+    <!-- oreilles -->
+    <polygon data-zone="ear-l" points="150,82 126,18 180,58" fill="white"/>
+    <polygon data-zone="ear-r" points="250,82 274,18 220,58" fill="white"/>
+    <!-- tête -->
+    <circle data-zone="head" cx="200" cy="130" r="66" fill="white"/>
+    <!-- masque -->
+    <path d="M150,116 Q200,98 250,116 Q250,138 200,145 Q150,138 150,116Z" fill="none" stroke-width="4"/>
+    <!-- yeux chat -->
+    <ellipse cx="180" cy="124" rx="10" ry="13" fill="#44FF44"/>
+    <ellipse cx="180" cy="124" rx="4" ry="11" fill="#222"/>
+    <ellipse cx="220" cy="124" rx="10" ry="13" fill="#44FF44"/>
+    <ellipse cx="220" cy="124" rx="4" ry="11" fill="#222"/>
+    <!-- nez -->
+    <polygon points="200,143 196,152 204,152" fill="#FF9999"/>
+    <!-- moustaches -->
+    <line x1="142" y1="138" x2="170" y2="140"/>
+    <line x1="142" y1="150" x2="170" y2="148"/>
+    <line x1="230" y1="140" x2="258" y2="138"/>
+    <line x1="230" y1="148" x2="258" y2="150"/>
   </g>
 `);
 
-/* ----------------------------------------------------------
-   Simple drawings for enfants / debutant / ecole
-   ---------------------------------------------------------- */
+/* ==========================================================
+   SIMPLES — enfants / débutant / école
+   ========================================================== */
+
 const SVG_STAR = svgWrap(`
   <g fill="none" stroke="#222" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
-    <polygon data-zone="star" points="200,50 230,150 340,150 250,210 280,320 200,255 120,320 150,210 60,150 170,150" fill="white"/>
-    <circle cx="185" cy="170" r="6" fill="#222"/>
-    <circle cx="215" cy="170" r="6" fill="#222"/>
-    <path d="M190,190 Q200,200 210,190"/>
+    <polygon data-zone="star" points="200,48 232,148 338,148 252,208 282,318 200,252 118,318 148,208 62,148 168,148" fill="white"/>
+    <circle cx="186" cy="168" r="5" fill="#222"/>
+    <circle cx="214" cy="168" r="5" fill="#222"/>
+    <path d="M192,188 Q200,198 208,188" fill="none"/>
   </g>
 `);
 
 const SVG_HOUSE = svgWrap(`
   <g fill="none" stroke="#222" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
-    <!-- roof -->
-    <polygon data-zone="roof" points="200,50 70,180 330,180" fill="white"/>
-    <!-- walls -->
-    <rect data-zone="wall" x="100" y="180" width="200" height="170" fill="white"/>
-    <!-- door -->
-    <rect data-zone="door" x="175" y="260" width="50" height="90" rx="5" fill="white"/>
-    <circle cx="215" cy="310" r="4" fill="#222"/>
-    <!-- windows -->
-    <rect data-zone="window-l" x="120" y="210" width="40" height="40" rx="4" fill="white"/>
-    <line x1="140" y1="210" x2="140" y2="250" stroke-width="3"/>
-    <line x1="120" y1="230" x2="160" y2="230" stroke-width="3"/>
-    <rect data-zone="window-r" x="240" y="210" width="40" height="40" rx="4" fill="white"/>
-    <line x1="260" y1="210" x2="260" y2="250" stroke-width="3"/>
-    <line x1="240" y1="230" x2="280" y2="230" stroke-width="3"/>
-    <!-- chimney -->
-    <rect data-zone="chimney" x="250" y="70" width="30" height="70" fill="white"/>
-    <!-- sun -->
-    <circle data-zone="sun" cx="60" cy="60" r="30" fill="white"/>
+    <polygon data-zone="roof" points="200,48 68,178 332,178" fill="white"/>
+    <rect data-zone="wall" x="98" y="178" width="204" height="172" fill="white"/>
+    <rect data-zone="door" x="174" y="258" width="52" height="92" rx="4" fill="white"/>
+    <circle cx="216" cy="308" r="4" fill="#222"/>
+    <rect data-zone="window-l" x="118" y="208" width="42" height="42" rx="4" fill="white"/>
+    <line x1="139" y1="208" x2="139" y2="250" stroke-width="3"/>
+    <line x1="118" y1="229" x2="160" y2="229" stroke-width="3"/>
+    <rect data-zone="window-r" x="240" y="208" width="42" height="42" rx="4" fill="white"/>
+    <line x1="261" y1="208" x2="261" y2="250" stroke-width="3"/>
+    <line x1="240" y1="229" x2="282" y2="229" stroke-width="3"/>
+    <rect data-zone="chimney" x="252" y="68" width="28" height="72" fill="white"/>
+    <circle data-zone="sun" cx="58" cy="58" r="28" fill="white"/>
   </g>
 `);
 
 const SVG_FLOWER = svgWrap(`
   <g fill="none" stroke="#222" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-    <!-- stem -->
-    <line data-zone="stem" x1="200" y1="220" x2="200" y2="370" stroke-width="8" stroke="#222"/>
-    <!-- leaves -->
-    <path data-zone="leaf-l" d="M200,290 Q150,270 130,300 Q140,320 200,300" fill="white"/>
-    <path data-zone="leaf-r" d="M200,260 Q250,240 270,270 Q260,290 200,270" fill="white"/>
-    <!-- petals -->
-    <ellipse data-zone="petal1" cx="200" cy="120" rx="30" ry="50" fill="white"/>
-    <ellipse data-zone="petal2" cx="200" cy="120" rx="30" ry="50" fill="white" transform="rotate(60 200 170)"/>
-    <ellipse data-zone="petal3" cx="200" cy="120" rx="30" ry="50" fill="white" transform="rotate(120 200 170)"/>
-    <ellipse data-zone="petal4" cx="200" cy="120" rx="30" ry="50" fill="white" transform="rotate(180 200 170)"/>
-    <ellipse data-zone="petal5" cx="200" cy="120" rx="30" ry="50" fill="white" transform="rotate(240 200 170)"/>
-    <ellipse data-zone="petal6" cx="200" cy="120" rx="30" ry="50" fill="white" transform="rotate(300 200 170)"/>
-    <!-- center -->
-    <circle data-zone="center" cx="200" cy="170" r="28" fill="white"/>
-    <!-- smiley -->
-    <circle cx="190" cy="165" r="4" fill="#222"/>
-    <circle cx="210" cy="165" r="4" fill="#222"/>
-    <path d="M190,178 Q200,186 210,178" stroke-width="3"/>
+    <rect data-zone="stem" x="194" y="218" width="12" height="155" rx="4" fill="white"/>
+    <path data-zone="leaf-l" d="M200,288 Q148,268 128,298 Q138,318 200,298Z" fill="white"/>
+    <path data-zone="leaf-r" d="M200,258 Q252,238 272,268 Q262,288 200,268Z" fill="white"/>
+    <ellipse data-zone="petal1" cx="200" cy="118" rx="28" ry="48" fill="white"/>
+    <ellipse data-zone="petal2" cx="200" cy="118" rx="28" ry="48" fill="white" transform="rotate(60 200 168)"/>
+    <ellipse data-zone="petal3" cx="200" cy="118" rx="28" ry="48" fill="white" transform="rotate(120 200 168)"/>
+    <ellipse data-zone="petal4" cx="200" cy="118" rx="28" ry="48" fill="white" transform="rotate(180 200 168)"/>
+    <ellipse data-zone="petal5" cx="200" cy="118" rx="28" ry="48" fill="white" transform="rotate(240 200 168)"/>
+    <ellipse data-zone="petal6" cx="200" cy="118" rx="28" ry="48" fill="white" transform="rotate(300 200 168)"/>
+    <circle data-zone="center" cx="200" cy="168" r="26" fill="white"/>
+    <circle cx="191" cy="163" r="4" fill="#222"/>
+    <circle cx="209" cy="163" r="4" fill="#222"/>
+    <path d="M192,176 Q200,184 208,176" stroke-width="3" fill="none"/>
   </g>
 `);
 
 const SVG_ROCKET = svgWrap(`
   <g fill="none" stroke="#222" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-    <!-- body -->
-    <path data-zone="body" d="M170,140 Q200,40 230,140 L230,300 L170,300Z" fill="white"/>
-    <!-- nose cone -->
-    <path data-zone="nose" d="M170,140 Q200,40 230,140Z" fill="white" stroke-width="4"/>
-    <!-- window -->
-    <circle data-zone="window" cx="200" cy="190" r="25" fill="white"/>
-    <circle cx="200" cy="190" r="15" fill="none" stroke-width="3"/>
-    <!-- left fin -->
-    <path data-zone="fin-l" d="M170,260 L120,320 L170,300Z" fill="white"/>
-    <!-- right fin -->
-    <path data-zone="fin-r" d="M230,260 L280,320 L230,300Z" fill="white"/>
-    <!-- bottom -->
-    <rect data-zone="bottom" x="175" y="300" width="50" height="20" rx="5" fill="white"/>
-    <!-- flames -->
-    <path data-zone="flame1" d="M180,320 Q175,360 200,380 Q225,360 220,320" fill="white"/>
-    <path data-zone="flame2" d="M188,320 Q190,350 200,360 Q210,350 212,320" fill="white"/>
-    <!-- stars -->
-    <circle cx="80" cy="100" r="4" fill="#222"/>
-    <circle cx="320" cy="160" r="4" fill="#222"/>
-    <circle cx="100" cy="280" r="3" fill="#222"/>
-    <circle cx="300" cy="80" r="5" fill="#222"/>
+    <path data-zone="body" d="M168,138 Q200,38 232,138 L232,298 L168,298Z" fill="white"/>
+    <circle data-zone="window" cx="200" cy="188" r="24" fill="white"/>
+    <circle cx="200" cy="188" r="14" fill="none" stroke-width="3"/>
+    <path data-zone="fin-l" d="M168,258 L118,318 L168,298Z" fill="white"/>
+    <path data-zone="fin-r" d="M232,258 L282,318 L232,298Z" fill="white"/>
+    <rect data-zone="bottom" x="173" y="298" width="54" height="18" rx="4" fill="white"/>
+    <path data-zone="flame" d="M178,316 Q174,358 200,378 Q226,358 222,316Z" fill="white"/>
+    <circle cx="78" cy="98" r="3" fill="#222"/>
+    <circle cx="322" cy="158" r="3" fill="#222"/>
+    <circle cx="98" cy="278" r="2" fill="#222"/>
+    <circle cx="302" cy="78" r="4" fill="#222"/>
   </g>
 `);
 
 const SVG_RAINBOW = svgWrap(`
   <g fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-    <!-- rainbow arcs -->
-    <path data-zone="arc1" d="M50,350 Q50,100 200,100 Q350,100 350,350" stroke="#222" fill="none" stroke-width="6"/>
-    <path data-zone="arc2" d="M80,350 Q80,135 200,135 Q320,135 320,350" stroke="#222" fill="none" stroke-width="6"/>
-    <path data-zone="arc3" d="M110,350 Q110,170 200,170 Q290,170 290,350" stroke="#222" fill="none" stroke-width="6"/>
-    <path data-zone="arc4" d="M140,350 Q140,205 200,205 Q260,205 260,350" stroke="#222" fill="none" stroke-width="6"/>
-    <path data-zone="arc5" d="M170,350 Q170,240 200,240 Q230,240 230,350" stroke="#222" fill="none" stroke-width="6"/>
-    <!-- Fill zones between arcs -->
     <path data-zone="band1" d="M50,350 Q50,100 200,100 Q350,100 350,350 L320,350 Q320,135 200,135 Q80,135 80,350Z" fill="white" stroke="#222" stroke-width="4"/>
     <path data-zone="band2" d="M80,350 Q80,135 200,135 Q320,135 320,350 L290,350 Q290,170 200,170 Q110,170 110,350Z" fill="white" stroke="#222" stroke-width="4"/>
     <path data-zone="band3" d="M110,350 Q110,170 200,170 Q290,170 290,350 L260,350 Q260,205 200,205 Q140,205 140,350Z" fill="white" stroke="#222" stroke-width="4"/>
     <path data-zone="band4" d="M140,350 Q140,205 200,205 Q260,205 260,350 L230,350 Q230,240 200,240 Q170,240 170,350Z" fill="white" stroke="#222" stroke-width="4"/>
-    <!-- clouds -->
+    <path data-zone="band5" d="M170,350 Q170,240 200,240 Q230,240 230,350Z" fill="white" stroke="#222" stroke-width="4"/>
     <ellipse data-zone="cloud-l" cx="60" cy="355" rx="55" ry="30" fill="white" stroke="#222" stroke-width="5"/>
     <ellipse data-zone="cloud-r" cx="340" cy="355" rx="55" ry="30" fill="white" stroke="#222" stroke-width="5"/>
   </g>
 `);
 
-/* ----------------------------------------------------------
-   Drawings registry
-   ---------------------------------------------------------- */
+/* ==========================================================
+   REGISTRY
+   ========================================================== */
 const DRAWINGS = [
-  // Animaux
-  { id: 'cat',       name: 'Chat',           svg: SVG_CAT,        categories: ['animaux','enfants','debutant'], thumbnail: '🐱' },
-  { id: 'dog',       name: 'Chien',          svg: SVG_DOG,        categories: ['animaux','enfants','debutant'], thumbnail: '🐶' },
-  { id: 'lion',      name: 'Lion',           svg: SVG_LION,       categories: ['animaux','debutant'],           thumbnail: '🦁' },
-  { id: 'elephant',  name: 'Éléphant',       svg: SVG_ELEPHANT,   categories: ['animaux','ecole'],              thumbnail: '🐘' },
-  { id: 'fish',      name: 'Poisson',        svg: SVG_FISH,       categories: ['animaux','enfants'],            thumbnail: '🐟' },
-  { id: 'butterfly', name: 'Papillon',       svg: SVG_BUTTERFLY,  categories: ['animaux','debutant','ecole'],   thumbnail: '🦋' },
-  // Super-héros
-  { id: 'hero',      name: 'Héros volant',   svg: SVG_HERO_FLYING, categories: ['super-heros','ecole'],         thumbnail: '🦸' },
-  { id: 'robot',     name: 'Robot héroïque', svg: SVG_ROBOT_HERO,  categories: ['super-heros'],                 thumbnail: '🤖' },
-  { id: 'ninja',     name: 'Ninja',          svg: SVG_NINJA,       categories: ['super-heros'],                 thumbnail: '🥷' },
-  { id: 'supercat',  name: 'Super Chat',     svg: SVG_SUPER_CAT,   categories: ['super-heros','animaux'],       thumbnail: '😺' },
-  // Enfants / Débutant / École
-  { id: 'star',      name: 'Étoile',         svg: SVG_STAR,        categories: ['enfants','debutant'],           thumbnail: '⭐' },
-  { id: 'house',     name: 'Maison',         svg: SVG_HOUSE,       categories: ['enfants','ecole'],              thumbnail: '🏠' },
-  { id: 'flower',    name: 'Fleur',          svg: SVG_FLOWER,      categories: ['enfants','debutant','ecole'],   thumbnail: '🌸' },
-  { id: 'rocket',    name: 'Fusée',          svg: SVG_ROCKET,      categories: ['ecole','debutant'],             thumbnail: '🚀' },
-  { id: 'rainbow',   name: 'Arc-en-ciel',    svg: SVG_RAINBOW,     categories: ['enfants','debutant'],           thumbnail: '🌈' },
+  { id: 'cat',       name: 'Chat',           svg: SVG_CAT,         categories: ['animaux','enfants','debutant'], thumbnail: '🐱' },
+  { id: 'dog',       name: 'Chien',          svg: SVG_DOG,         categories: ['animaux','enfants','debutant'], thumbnail: '🐶' },
+  { id: 'lion',      name: 'Lion',           svg: SVG_LION,        categories: ['animaux','debutant'],           thumbnail: '🦁' },
+  { id: 'turtle',    name: 'Tortue',          svg: SVG_TURTLE,      categories: ['animaux','enfants','ecole'],    thumbnail: '🐢' },
+  { id: 'fish',      name: 'Poisson',        svg: SVG_FISH,        categories: ['animaux','enfants'],            thumbnail: '🐟' },
+  { id: 'butterfly', name: 'Papillon',       svg: SVG_BUTTERFLY,   categories: ['animaux','debutant','ecole'],   thumbnail: '🦋' },
+  { id: 'hero',      name: 'Héros volant',   svg: SVG_HERO_FLYING, categories: ['super-heros','ecole'],          thumbnail: '🦸' },
+  { id: 'robot',     name: 'Robot héroïque', svg: SVG_ROBOT_HERO,  categories: ['super-heros'],                  thumbnail: '🤖' },
+  { id: 'ninja',     name: 'Ninja',          svg: SVG_NINJA,       categories: ['super-heros'],                  thumbnail: '🥷' },
+  { id: 'supercat',  name: 'Super Chat',     svg: SVG_SUPER_CAT,   categories: ['super-heros','animaux'],        thumbnail: '😺' },
+  { id: 'star',      name: 'Étoile',         svg: SVG_STAR,        categories: ['enfants','debutant'],            thumbnail: '⭐' },
+  { id: 'house',     name: 'Maison',         svg: SVG_HOUSE,       categories: ['enfants','ecole'],               thumbnail: '🏠' },
+  { id: 'flower',    name: 'Fleur',          svg: SVG_FLOWER,      categories: ['enfants','debutant','ecole'],    thumbnail: '🌸' },
+  { id: 'rocket',    name: 'Fusée',          svg: SVG_ROCKET,      categories: ['ecole','debutant'],              thumbnail: '🚀' },
+  { id: 'rainbow',   name: 'Arc-en-ciel',    svg: SVG_RAINBOW,     categories: ['enfants','debutant'],            thumbnail: '🌈' },
 ];

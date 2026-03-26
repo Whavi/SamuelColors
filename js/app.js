@@ -46,7 +46,7 @@
   const btnReset       = $('#btnReset');
   const coloringBack   = $('#coloringBack');
   const btnVerify      = $('#btnVerify');
-  const mathVerifyBar  = $('#mathVerifyBar');
+  const mathVerifySection  = $('#mathVerifySection');
 
   // Modals
   const successModal   = $('#successModal');
@@ -115,6 +115,19 @@
     setupModals();
     renderCategories();
     updateFavColorButtons();
+
+    // Auto-verify callback for math mode
+    CanvasEngine.setOnAllZonesColored(() => {
+      // Small delay to let the last paint render
+      setTimeout(() => {
+        const result = CanvasEngine.verifyMathColoring();
+        if (result.correct) {
+          showSuccess(result);
+        } else {
+          showError(result);
+        }
+      }, 300);
+    });
 
     // Sound context (lazy init)
     window._audioCtx = null;
@@ -278,7 +291,7 @@
       colorSection.hidden = true;
       favColorsSection.hidden = true;
       mathPaletteSection.hidden = false;
-      mathVerifyBar.hidden = false;
+      mathVerifySection.hidden = false;
 
       // Generate exercise
       const exercise = generateMathExercise(drawingId, selectedMathType, selectedDifficulty);
@@ -298,11 +311,14 @@
       if (exercise.legend.length > 0) {
         CanvasEngine.setColor(exercise.legend[0].color);
       }
+
+      // Math mode: only fill + eraser, default to fill
+      setActiveTool('fill');
     } else {
       colorSection.hidden = false;
       favColorsSection.hidden = false;
       mathPaletteSection.hidden = true;
-      mathVerifyBar.hidden = true;
+      mathVerifySection.hidden = true;
 
       showView('coloring');
       requestAnimationFrame(() => {
@@ -317,8 +333,8 @@
     // Set back button target
     coloringBack.dataset.action = isMath ? 'go-math' : 'go-categories';
 
-    // Reset tool to brush
-    setActiveTool('brush');
+    // Default tool: fill for math, brush for free
+    setActiveTool(isMath ? 'fill' : 'brush');
   }
 
   function renderMathPaletteUI(exercise) {
@@ -335,7 +351,10 @@
       el.addEventListener('click', () => {
         $$('.math-palette-item').forEach(p => p.classList.remove('selected'));
         el.classList.add('selected');
+        // Switch back to fill tool with this color (in case eraser was active)
+        CanvasEngine.setTool('fill');
         CanvasEngine.setColor(item.color);
+        $$('[data-tool]').forEach(b => b.classList.toggle('active', b.dataset.tool === 'fill'));
         playClickSound();
       });
       mathPalette.appendChild(el);
@@ -432,11 +451,29 @@
   }
 
   function setActiveTool(tool) {
-    $$('[data-tool]').forEach(b => b.classList.toggle('active', b.dataset.tool === tool));
-    CanvasEngine.setTool(tool);
+    // In math mode: no brush allowed, only fill and eraser
+    if (isMathColoring && tool === 'brush') tool = 'fill';
 
-    brushSizeSection.hidden = (tool !== 'brush');
-    eraserSizeSection.hidden = (tool !== 'eraser');
+    $$('[data-tool]').forEach(b => {
+      // Hide brush button in math mode
+      if (isMathColoring && b.dataset.tool === 'brush') {
+        b.style.display = 'none';
+      } else {
+        b.style.display = '';
+      }
+      b.classList.toggle('active', b.dataset.tool === tool);
+    });
+
+    // In math mode, eraser = "zone eraser" (fill with white via bucket)
+    if (isMathColoring && tool === 'eraser') {
+      CanvasEngine.setTool('fill');
+      CanvasEngine.setColor('#FFFFFF');
+    } else {
+      CanvasEngine.setTool(tool);
+    }
+
+    brushSizeSection.hidden = (tool !== 'brush') || isMathColoring;
+    eraserSizeSection.hidden = true; // no size slider needed in math
   }
 
   /* -------------------------------------------------------

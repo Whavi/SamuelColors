@@ -41,6 +41,9 @@ const CanvasEngine = (() => {
   // Cached outline pixel data for flood fill boundaries
   let outlineData = null;
 
+  // Callback for auto-verification
+  let onAllZonesColored = null;
+
   // History (undo/redo)
   let history = [];
   let historyIndex = -1;
@@ -173,30 +176,36 @@ const CanvasEngine = (() => {
      ------------------------------------------------------- */
   function renderOutline(svgString) {
     return new Promise((resolve) => {
-      // Strip fills from SVG — keep only strokes (black outlines)
-      // so the outline canvas is transparent except for lines
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(svgString, 'image/svg+xml');
-      doc.querySelectorAll('*').forEach(el => {
-        const fill = el.getAttribute('fill');
-        // Remove white/colored fills, keep only explicit dark fills (eyes, nose etc.)
-        if (fill && fill !== 'none') {
-          const lower = fill.toLowerCase();
-          if (lower === 'white' || lower === '#ffffff' || lower === '#fff') {
-            el.setAttribute('fill', 'none');
-          }
-        }
-      });
-      const strippedSvg = new XMLSerializer().serializeToString(doc.documentElement);
-
+      // Step 1: Render full SVG WITH white fills (preserves layering)
       const img = new Image();
-      const blob = new Blob([strippedSvg], { type: 'image/svg+xml' });
+      const blob = new Blob([svgString], { type: 'image/svg+xml' });
       const url = URL.createObjectURL(blob);
       img.onload = () => {
-        outlineCtx.clearRect(0, 0, width, height);
-        outlineCtx.drawImage(img, 0, 0, width, height);
+        // Render on a temp canvas first
+        const tmpCanvas = document.createElement('canvas');
+        tmpCanvas.width = width;
+        tmpCanvas.height = height;
+        const tmpCtx = tmpCanvas.getContext('2d');
+        tmpCtx.drawImage(img, 0, 0, width, height);
         URL.revokeObjectURL(url);
-        // Cache outline pixel data for flood fill boundary detection
+
+        // Step 2: Make white/light pixels transparent, keep dark pixels (outlines)
+        const imgData = tmpCtx.getImageData(0, 0, width, height);
+        const d = imgData.data;
+        for (let i = 0; i < d.length; i += 4) {
+          const r = d[i], g = d[i+1], b = d[i+2];
+          const brightness = (r + g + b) / 3;
+          if (brightness > 200) {
+            d[i+3] = 0;
+          } else if (brightness > 140) {
+            d[i] = d[i+1] = d[i+2] = 0;
+            d[i+3] = Math.round((200 - brightness) * (255 / 60));
+          }
+        }
+
+        outlineCtx.clearRect(0, 0, width, height);
+        outlineCtx.putImageData(imgData, 0, 0);
+
         cacheOutlineData();
         resolve();
       };
@@ -326,82 +335,99 @@ const CanvasEngine = (() => {
 
   /* -------------------------------------------------------
      Render math operation labels on zones
-     Uses pixel-based centroid detection for accurate placement
+     Renders each zone INDIVIDUALLY to get true centroids
+     (avoids overlapping zones stealing pixels from each other)
      ------------------------------------------------------- */
   function renderMathLabels() {
     if (!mathExercise || !currentSvg) return;
 
-    // Render original SVG (with white fills) on a temp canvas to find zone centers
-    const tmpCanvas = document.createElement('canvas');
-    tmpCanvas.width = width;
-    tmpCanvas.height = height;
-    const tmpCtx = tmpCanvas.getContext('2d');
-
-    // Color each zone uniquely
     const parser = new DOMParser();
-    const doc = parser.parseFromString(currentSvg, 'image/svg+xml');
-    const zoneColors = {};
-    let ci = 0;
-    doc.querySelectorAll('[data-zone]').forEach(el => {
-      const zid = el.getAttribute('data-zone');
-      if (!zoneColors[zid]) {
-        ci++;
-        zoneColors[zid] = [ci * 40 % 255, ci * 70 % 255, ci * 110 % 255];
-      }
-      const c = zoneColors[zid];
-      el.setAttribute('fill', `rgb(${c[0]},${c[1]},${c[2]})`);
-      el.setAttribute('stroke', `rgb(${c[0]},${c[1]},${c[2]})`);
-      el.setAttribute('stroke-width', '1');
-    });
-    // Hide non-zone elements
-    doc.querySelectorAll('*:not([data-zone])').forEach(el => {
-      if (el.tagName !== 'svg' && el.tagName !== 'g' && !el.querySelector('[data-zone]')) {
-        el.setAttribute('fill', 'none');
-        el.setAttribute('stroke', 'none');
-      }
-    });
+    const zoneIds = mathExercise.zones.map(z => z.zoneId);
 
-    const svgStr = new XMLSerializer().serializeToString(doc.documentElement);
-    const img = new Image();
-    const blob = new Blob([svgStr], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    img.onload = () => {
-      tmpCtx.drawImage(img, 0, 0, width, height);
-      URL.revokeObjectURL(url);
+    // For each zone, render ONLY that zone on a temp canvas and find its center
+    const zoneCentroids = {};
+    let loaded = 0;
+    const total = zoneIds.length;
 
-      const imgData = tmpCtx.getImageData(0, 0, width, height).data;
+    zoneIds.forEach(zid => {
+      const doc = parser.parseFromString(currentSvg, 'image/svg+xml');
+      // Hide everything
+      doc.querySelectorAll('*').forEach(el => {
+        if (el.tagName !== 'svg' && el.tagName !== 'g') {
+          el.setAttribute('fill', 'none');
+          el.setAttribute('stroke', 'none');
+        }
+      });
+      // Show only this zone in red
+      doc.querySelectorAll(`[data-zone="${zid}"]`).forEach(el => {
+        el.setAttribute('fill', 'rgb(255,0,0)');
+        el.setAttribute('stroke', 'rgb(255,0,0)');
+        el.setAttribute('stroke-width', '1');
+      });
 
-      // Find centroid of each zone by scanning pixels
-      const zoneSums = {}; // {zoneId: {sx, sy, count}}
-      for (const zid of Object.keys(zoneColors)) {
-        zoneSums[zid] = { sx: 0, sy: 0, count: 0 };
-      }
+      const svgStr = new XMLSerializer().serializeToString(doc.documentElement);
+      const img = new Image();
+      const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      img.onload = () => {
+        const tc = document.createElement('canvas');
+        tc.width = width; tc.height = height;
+        const tctx = tc.getContext('2d');
+        tctx.drawImage(img, 0, 0, width, height);
+        URL.revokeObjectURL(url);
 
-      for (let y = 0; y < height; y += 2) {
-        for (let x = 0; x < width; x += 2) {
-          const idx = (y * width + x) * 4;
-          const r = imgData[idx], g = imgData[idx+1], b = imgData[idx+2], a = imgData[idx+3];
-          if (a < 50) continue;
-
-          for (const [zid, c] of Object.entries(zoneColors)) {
-            if (Math.abs(r - c[0]) < 25 && Math.abs(g - c[1]) < 25 && Math.abs(b - c[2]) < 25) {
-              zoneSums[zid].sx += x;
-              zoneSums[zid].sy += y;
-              zoneSums[zid].count++;
-              break;
+        const d = tctx.getImageData(0, 0, width, height).data;
+        let sx = 0, sy = 0, cnt = 0;
+        let minX = width, minY = height, maxX = 0, maxY = 0;
+        for (let y = 0; y < height; y += 2) {
+          for (let x = 0; x < width; x += 2) {
+            const i = (y * width + x) * 4;
+            if (d[i] > 100 && d[i+3] > 50) {
+              sx += x; sy += y; cnt++;
+              if (x < minX) minX = x;
+              if (x > maxX) maxX = x;
+              if (y < minY) minY = y;
+              if (y > maxY) maxY = y;
             }
           }
         }
-      }
+        zoneCentroids[zid] = {
+          cx: cnt > 0 ? sx / cnt : 0,
+          cy: cnt > 0 ? sy / cnt : 0,
+          count: cnt,
+          w: maxX - minX,
+          h: maxY - minY
+        };
 
-      // Draw labels at centroids
-      const fontSize = Math.max(11, Math.min(16, width / 28));
-      mathExercise.zones.forEach(zone => {
-        const s = zoneSums[zone.zoneId];
-        if (!s || s.count < 5) return;
+        loaded++;
+        if (loaded === total) drawAllLabels();
+      };
+      img.onerror = () => { loaded++; if (loaded === total) drawAllLabels(); };
+      img.src = url;
+    });
 
-        const cx = s.sx / s.count;
-        const cy = s.sy / s.count;
+    function drawAllLabels() {
+      const minPixels = (width * height) / 8000;
+      const baseFontSize = Math.max(9, Math.min(13, width / 36));
+      const placedLabels = [];
+
+      // Sort: largest zones first
+      const sorted = [...mathExercise.zones].sort((a, b) => {
+        const ca = zoneCentroids[a.zoneId] ? zoneCentroids[a.zoneId].count : 0;
+        const cb = zoneCentroids[b.zoneId] ? zoneCentroids[b.zoneId].count : 0;
+        return cb - ca;
+      });
+
+      sorted.forEach(zone => {
+        const c = zoneCentroids[zone.zoneId];
+        if (!c || c.count < minPixels) return;
+
+        // Adapt font size to zone size
+        const zoneSize = Math.min(c.w, c.h);
+        const fontSize = Math.min(baseFontSize, Math.max(8, zoneSize * 0.18));
+
+        let cx = c.cx;
+        let cy = c.cy;
 
         outlineCtx.save();
         outlineCtx.font = `bold ${fontSize}px ${getComputedStyle(document.body).fontFamily}`;
@@ -410,19 +436,37 @@ const CanvasEngine = (() => {
 
         const metrics = outlineCtx.measureText(zone.operation);
         const tw = metrics.width + 10;
-        const th = fontSize + 8;
+        const th = fontSize + 6;
 
-        // White background
-        outlineCtx.fillStyle = 'rgba(255,255,255,0.9)';
+        // Anti-overlap: try positions around centroid
+        const maxDist = Math.min(c.w, c.h) * 0.35;
+        for (let attempt = 0; attempt < 16; attempt++) {
+          let collision = false;
+          for (const placed of placedLabels) {
+            if (Math.abs(cx - placed.x) < (tw + placed.w) / 2 + 2 &&
+                Math.abs(cy - placed.y) < (th + placed.h) / 2 + 2) {
+              collision = true;
+              break;
+            }
+          }
+          if (!collision) break;
+          const angle = attempt * (Math.PI * 2 / 8) + (attempt >= 8 ? Math.PI / 8 : 0);
+          const dist = Math.min((th + 2) * (1 + Math.floor(attempt / 8)), maxDist);
+          cx = c.cx + Math.cos(angle) * dist;
+          cy = c.cy + Math.sin(angle) * dist;
+        }
+
+        placedLabels.push({ x: cx, y: cy, w: tw, h: th });
+
+        // White pill background
+        outlineCtx.fillStyle = 'rgba(255,255,255,0.95)';
         outlineCtx.beginPath();
-        outlineCtx.roundRect(cx - tw/2, cy - th/2, tw, th, 4);
+        outlineCtx.roundRect(cx - tw/2, cy - th/2, tw, th, th/2);
         outlineCtx.fill();
-
-        // Border
-        outlineCtx.strokeStyle = '#555';
-        outlineCtx.lineWidth = 1.5;
+        outlineCtx.strokeStyle = '#444';
+        outlineCtx.lineWidth = 1.2;
         outlineCtx.beginPath();
-        outlineCtx.roundRect(cx - tw/2, cy - th/2, tw, th, 4);
+        outlineCtx.roundRect(cx - tw/2, cy - th/2, tw, th, th/2);
         outlineCtx.stroke();
 
         // Text
@@ -430,8 +474,7 @@ const CanvasEngine = (() => {
         outlineCtx.fillText(zone.operation, cx, cy);
         outlineCtx.restore();
       });
-    };
-    img.src = url;
+    }
   }
 
   /* -------------------------------------------------------
@@ -472,6 +515,7 @@ const CanvasEngine = (() => {
     if (currentTool === 'fill') {
       floodFill(Math.floor(pos.x), Math.floor(pos.y), currentColor);
       saveState();
+      checkAutoVerify();
       return;
     }
 
@@ -496,6 +540,7 @@ const CanvasEngine = (() => {
     if (isDrawing) {
       isDrawing = false;
       saveState();
+      checkAutoVerify();
     }
   }
 
@@ -891,6 +936,41 @@ const CanvasEngine = (() => {
   function setColor(color) { currentColor = color; }
   function setBrushSize(size) { brushSize = size; }
   function setEraserSize(size) { eraserSize = size; }
+  function setOnAllZonesColored(cb) { onAllZonesColored = cb; }
+
+  /* -------------------------------------------------------
+     Auto-verify: check if all math zones have been colored
+     (not white) and trigger callback
+     ------------------------------------------------------- */
+  function checkAutoVerify() {
+    if (!mathMode || !mathExercise || !zonePixelMap || !onAllZonesColored) return;
+
+    const imageData = drawCtx.getImageData(0, 0, width, height);
+    const data = imageData.data;
+
+    for (const zone of mathExercise.zones) {
+      const pixels = getZonePixels(zone.zoneId);
+      if (pixels.length === 0) continue;
+
+      // Check if zone is still mostly white (uncolored)
+      let coloredCount = 0;
+      const sampleSize = Math.min(pixels.length, 50);
+      const step = Math.max(1, Math.floor(pixels.length / sampleSize));
+      for (let i = 0; i < pixels.length; i += step) {
+        const { x, y } = pixels[i];
+        const idx = (y * width + x) * 4;
+        const r = data[idx], g = data[idx+1], b = data[idx+2];
+        // Not white = colored
+        if (r < 230 || g < 230 || b < 230) coloredCount++;
+      }
+      const coloredRatio = coloredCount / Math.ceil(pixels.length / step);
+      // If less than 30% colored, this zone is not done yet
+      if (coloredRatio < 0.3) return;
+    }
+
+    // All zones colored — trigger auto verify
+    onAllZonesColored();
+  }
 
   /* -------------------------------------------------------
      Public API
@@ -902,6 +982,7 @@ const CanvasEngine = (() => {
     setColor,
     setBrushSize,
     setEraserSize,
+    setOnAllZonesColored,
     undo,
     redo,
     reset,

@@ -46,17 +46,7 @@
 .coloring-header h2 { flex: 1; font-size: var(--font-size-lg); }
 .coloring-header-actions { display: flex; gap: var(--space-sm); }
 
-.math-verify-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: var(--space-md);
-  background: var(--color-surface);
-  box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
-  text-align: center;
-  z-index: var(--z-toolbar);
-}
+/* verify bar removed — button is now in toolbar */
 
 @media (max-width: 900px) {
   .coloring-workspace {
