@@ -203,6 +203,7 @@
     setupPicker();
     setupFolders();
     setupProfiles();
+    setupTicker();
     renderCategories();
     updateFavColorButtons();
 
@@ -234,6 +235,35 @@
 
     // Sound context (lazy init)
     window._audioCtx = null;
+  }
+
+  /* -------------------------------------------------------
+     Infinite ticker — JS-driven, no CSS animation
+     Clones items to fill 2x screen, scrolls with rAF, resets seamlessly
+     ------------------------------------------------------- */
+  function setupTicker() {
+    const track = $('#tickerTrack');
+    if (!track) return;
+
+    // Clone items until track is at least 2x viewport width
+    const origItems = Array.from(track.children);
+    const viewW = window.innerWidth;
+    while (track.scrollWidth < viewW * 3) {
+      origItems.forEach(item => track.appendChild(item.cloneNode(true)));
+    }
+
+    // Measure one "set" width (half the track)
+    const setWidth = track.scrollWidth / 2;
+    let pos = 0;
+    const speed = 0.5; // pixels per frame (~30px/s at 60fps)
+
+    function tick() {
+      pos += speed;
+      if (pos >= setWidth) pos = 0; // seamless reset
+      track.style.transform = 'translateX(' + (-pos) + 'px)';
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
   }
 
   /* -------------------------------------------------------

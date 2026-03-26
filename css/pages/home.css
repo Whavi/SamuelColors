@@ -94,9 +94,7 @@
 }
 
 /* ==========================================
-   LOGO TICKER (defilant infini sans coupure)
-   2 copies du meme groupe cote a cote
-   L'animation deplace de -50% = exactement 1 groupe
+   LOGO TICKER (JS-driven infinite scroll)
    ========================================== */
 .logo-ticker {
   overflow: hidden;
@@ -106,25 +104,37 @@
 }
 .logo-ticker-track {
   display: flex;
-  width: fit-content;
-  animation: tickerScroll 35s linear infinite;
-}
-.ticker-group {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
+  white-space: nowrap;
+  will-change: transform;
 }
 .ticker-item {
-  white-space: nowrap;
-  padding: var(--space-xs) var(--space-xl);
+  flex-shrink: 0;
+  padding: var(--space-xs) var(--space-2xl);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
-  color: rgba(255,255,255,0.8);
-  letter-spacing: 0.02em;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
 }
-@keyframes tickerScroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+.ticker-logo-item {
+  padding: var(--space-xs) var(--space-3xl);
+}
+.ticker-logo {
+  height: 32px;
+  width: auto;
+  max-width: 160px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
+}
+.ticker-logo-ctflab {
+  transform: scale(2.2) !important;
+  transform-origin: center center;
+}
+.ticker-logo-europ {
+  transform: scale(1.8) !important;
+  transform-origin: center center;
 }
 
 /* ==========================================
@@ -460,3 +470,59 @@
 [data-theme="dark"] .hero-sub { color: #c0c0d0; }
 [data-theme="dark"] .home-section-alt { background: #16162a; }
 [data-theme="dark"] .step-number { box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+
+/* ==========================================
+   FOOTER
+   ========================================== */
+.site-footer {
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  padding: var(--space-xl) var(--space-lg);
+  text-align: center;
+}
+.footer-content {
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.footer-name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-black);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.footer-copy {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+.footer-links {
+  display: flex;
+  gap: var(--space-lg);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-light);
+  transition: color var(--transition-fast);
+}
+.footer-link:hover {
+  color: var(--color-primary);
+}
+.footer-link svg {
+  flex-shrink: 0;
+}
