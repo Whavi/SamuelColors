@@ -194,19 +194,24 @@ const CanvasEngine = (() => {
 
   /* -------------------------------------------------------
      Cache outline pixels as a boundary mask
-     A pixel is a "wall" if it's dark (part of the outline)
+     A pixel is a "wall" if it's dark or semi-dark (outline + anti-aliasing)
      ------------------------------------------------------- */
   function cacheOutlineData() {
     if (width === 0 || height === 0) { outlineData = null; return; }
     const imgData = outlineCtx.getImageData(0, 0, width, height);
     const src = imgData.data;
-    // Create a simple boolean mask: 1 = wall (outline), 0 = passable
+    // Create a boolean mask: 1 = wall (outline/transparent), 0 = passable
     outlineData = new Uint8Array(width * height);
     for (let i = 0; i < width * height; i++) {
       const idx = i * 4;
       const r = src[idx], g = src[idx+1], b = src[idx+2], a = src[idx+3];
-      // Dark opaque pixels are walls (outlines)
-      if (a > 100 && r < 100 && g < 100 && b < 100) {
+      // Dark pixels with some opacity = outline walls
+      if (a > 60 && (r + g + b) / 3 < 140) {
+        outlineData[i] = 1;
+      }
+      // Fully transparent pixels = outside the drawing = also a wall
+      // This prevents filling outside the SVG shapes
+      else if (a < 10) {
         outlineData[i] = 1;
       }
     }
@@ -561,53 +566,23 @@ const CanvasEngine = (() => {
 
   /* -------------------------------------------------------
      Flood Fill (bucket tool) — scanline-based
-     Uses cached outline mask as boundary.
-     Fills on drawing canvas only; outlines block propagation.
+     Uses ONLY the outline mask as boundaries.
+     Fills everything that is not a wall, ignoring existing colors.
+     This means the bucket paints OVER any brush strokes.
      ------------------------------------------------------- */
   function floodFill(startX, startY, fillColor) {
     if (startX < 0 || startY < 0 || startX >= width || startY >= height) return;
 
-    // If outline data not cached yet, try to build it now
+    // Build outline mask if not ready
     if (!outlineData) cacheOutlineData();
+    if (!outlineData) return;
 
-    // Check if start pixel is on an outline wall
-    if (outlineData && outlineData[startY * width + startX]) return;
+    // Don't fill if clicking directly on a wall
+    if (outlineData[startY * width + startX]) return;
 
     const imageData = drawCtx.getImageData(0, 0, width, height);
     const data = imageData.data;
     const fill = hexToRgbaArr(fillColor);
-
-    const startIdx = (startY * width + startX) * 4;
-    const targetR = data[startIdx];
-    const targetG = data[startIdx + 1];
-    const targetB = data[startIdx + 2];
-
-    // Don't fill if already the same color
-    if (Math.abs(targetR - fill[0]) < 15 &&
-        Math.abs(targetG - fill[1]) < 15 &&
-        Math.abs(targetB - fill[2]) < 15) return;
-
-    const tolerance = 35;
-
-    // Check if a pixel on the drawing canvas matches the target color
-    function matchesTarget(idx) {
-      return Math.abs(data[idx] - targetR) <= tolerance &&
-             Math.abs(data[idx+1] - targetG) <= tolerance &&
-             Math.abs(data[idx+2] - targetB) <= tolerance;
-    }
-
-    // Check if pixel is passable: matches target AND not an outline wall
-    function canPass(pixelIdx, dataIdx) {
-      if (outlineData && outlineData[pixelIdx]) return false;
-      return matchesTarget(dataIdx);
-    }
-
-    function setPixel(idx) {
-      data[idx]   = fill[0];
-      data[idx+1] = fill[1];
-      data[idx+2] = fill[2];
-      data[idx+3] = 255;
-    }
 
     const stack = [[startX, startY]];
     const visited = new Uint8Array(width * height);
@@ -617,32 +592,40 @@ const CanvasEngine = (() => {
       const pidx = y * width + x;
 
       if (visited[pidx]) continue;
-      if (!canPass(pidx, pidx * 4)) continue;
+      // Wall = stop
+      if (outlineData[pidx]) continue;
 
-      // Scan left
+      // Scan left to find boundary
       let leftX = x;
       while (leftX > 0) {
         const lp = y * width + (leftX - 1);
-        if (!canPass(lp, lp * 4) || visited[lp]) break;
+        if (outlineData[lp] || visited[lp]) break;
         leftX--;
       }
 
-      // Scan right and fill
+      // Scan right, fill, and check rows above/below
       let rightX = leftX;
       while (rightX < width) {
         const rp = y * width + rightX;
-        if (!canPass(rp, rp * 4) || visited[rp]) break;
+        if (outlineData[rp] || visited[rp]) break;
 
-        setPixel(rp * 4);
+        // Paint this pixel
+        const di = rp * 4;
+        data[di]   = fill[0];
+        data[di+1] = fill[1];
+        data[di+2] = fill[2];
+        data[di+3] = 255;
         visited[rp] = 1;
 
+        // Push row above
         if (y > 0) {
           const ap = (y - 1) * width + rightX;
-          if (!visited[ap] && canPass(ap, ap * 4)) stack.push([rightX, y - 1]);
+          if (!visited[ap] && !outlineData[ap]) stack.push([rightX, y - 1]);
         }
+        // Push row below
         if (y < height - 1) {
           const bp = (y + 1) * width + rightX;
-          if (!visited[bp] && canPass(bp, bp * 4)) stack.push([rightX, y + 1]);
+          if (!visited[bp] && !outlineData[bp]) stack.push([rightX, y + 1]);
         }
         rightX++;
       }
