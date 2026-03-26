@@ -22,18 +22,28 @@ function svgWrap(inner, vb = '0 0 400 400') {
    ---------------------------------------------------------- */
 const SVG_CAT = svgWrap(`
   <g fill="none" stroke="#222" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
-    <!-- body -->
-    <ellipse data-zone="body" cx="200" cy="260" rx="110" ry="90" fill="white"/>
+    <!-- body top -->
+    <ellipse data-zone="body-top" cx="200" cy="240" rx="100" ry="50" fill="white"/>
+    <!-- body bottom -->
+    <ellipse data-zone="body-bottom" cx="200" cy="300" rx="100" ry="50" fill="white"/>
     <!-- head -->
     <circle data-zone="head" cx="200" cy="140" r="75" fill="white"/>
+    <!-- forehead spot -->
+    <circle data-zone="forehead" cx="200" cy="105" r="22" fill="white"/>
     <!-- ears -->
-    <polygon data-zone="ear-left" points="145,80 125,30 170,65" fill="white"/>
-    <polygon data-zone="ear-right" points="255,80 275,30 230,65" fill="white"/>
+    <polygon data-zone="ear-left" points="145,80 120,25 175,60" fill="white"/>
+    <polygon data-zone="ear-right" points="255,80 280,25 225,60" fill="white"/>
+    <!-- inner ears -->
+    <polygon data-zone="ear-inner-left" points="147,75 132,42 167,63" fill="white"/>
+    <polygon data-zone="ear-inner-right" points="253,75 268,42 233,63" fill="white"/>
+    <!-- cheeks -->
+    <circle data-zone="cheek-left" cx="155" cy="155" r="20" fill="white"/>
+    <circle data-zone="cheek-right" cx="245" cy="155" r="20" fill="white"/>
     <!-- eyes -->
     <ellipse cx="175" cy="130" rx="12" ry="15" fill="#222"/>
     <ellipse cx="225" cy="130" rx="12" ry="15" fill="#222"/>
     <!-- nose -->
-    <polygon points="200,150 192,162 208,162" fill="#FF9999"/>
+    <polygon data-zone="nose" points="200,150 192,162 208,162" fill="white"/>
     <!-- mouth -->
     <path d="M192,162 Q200,175 208,162" fill="none"/>
     <!-- whiskers -->
@@ -42,10 +52,15 @@ const SVG_CAT = svgWrap(`
     <line x1="230" y1="148" x2="270" y2="145"/>
     <line x1="230" y1="158" x2="270" y2="158"/>
     <!-- tail -->
-    <path data-zone="tail" d="M310,250 Q350,200 340,160 Q330,140 310,160" fill="none" stroke-width="8"/>
-    <!-- paws -->
-    <ellipse data-zone="paw-left" cx="155" cy="345" rx="30" ry="18" fill="white"/>
-    <ellipse data-zone="paw-right" cx="245" cy="345" rx="30" ry="18" fill="white"/>
+    <path data-zone="tail" d="M310,260 Q360,220 355,170 Q350,140 325,155 Q340,190 310,230" fill="white" stroke-width="6"/>
+    <!-- front paws -->
+    <ellipse data-zone="paw-fl" cx="150" cy="345" rx="32" ry="18" fill="white"/>
+    <ellipse data-zone="paw-fr" cx="250" cy="345" rx="32" ry="18" fill="white"/>
+    <!-- back paws -->
+    <ellipse data-zone="paw-bl" cx="120" cy="335" rx="22" ry="14" fill="white"/>
+    <ellipse data-zone="paw-br" cx="280" cy="335" rx="22" ry="14" fill="white"/>
+    <!-- belly spot -->
+    <ellipse data-zone="belly" cx="200" cy="280" rx="40" ry="25" fill="white"/>
   </g>
 `);
 
@@ -53,11 +68,17 @@ const SVG_DOG = svgWrap(`
   <g fill="none" stroke="#222" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
     <!-- body -->
     <ellipse data-zone="body" cx="200" cy="265" rx="120" ry="85" fill="white"/>
+    <!-- belly -->
+    <ellipse data-zone="belly" cx="200" cy="280" rx="55" ry="35" fill="white"/>
+    <!-- collar -->
+    <rect data-zone="collar" x="155" y="195" width="90" height="18" rx="8" fill="white"/>
     <!-- head -->
     <circle data-zone="head" cx="200" cy="135" r="80" fill="white"/>
+    <!-- muzzle -->
+    <ellipse data-zone="muzzle" cx="200" cy="160" rx="35" ry="25" fill="white"/>
     <!-- ears -->
-    <ellipse data-zone="ear-left" cx="130" cy="105" rx="30" ry="50" fill="white" transform="rotate(-15 130 105)"/>
-    <ellipse data-zone="ear-right" cx="270" cy="105" rx="30" ry="50" fill="white" transform="rotate(15 270 105)"/>
+    <ellipse data-zone="ear-left" cx="130" cy="100" rx="28" ry="48" fill="white"/>
+    <ellipse data-zone="ear-right" cx="270" cy="100" rx="28" ry="48" fill="white"/>
     <!-- eyes -->
     <circle cx="175" cy="125" r="10" fill="#222"/>
     <circle cx="225" cy="125" r="10" fill="#222"/>
@@ -68,94 +89,133 @@ const SVG_DOG = svgWrap(`
     <!-- mouth -->
     <path d="M185,168 Q200,185 215,168" fill="none"/>
     <!-- tongue -->
-    <ellipse data-zone="tongue" cx="200" cy="185" rx="10" ry="12" fill="#FF8888"/>
-    <!-- legs -->
-    <rect data-zone="leg-fl" x="140" y="320" width="30" height="50" rx="12" fill="white"/>
-    <rect data-zone="leg-fr" x="230" y="320" width="30" height="50" rx="12" fill="white"/>
+    <ellipse data-zone="tongue" cx="200" cy="190" rx="12" ry="14" fill="white"/>
+    <!-- front legs -->
+    <rect data-zone="leg-fl" x="135" y="320" width="35" height="55" rx="14" fill="white"/>
+    <rect data-zone="leg-fr" x="230" y="320" width="35" height="55" rx="14" fill="white"/>
+    <!-- back legs -->
+    <rect data-zone="leg-bl" x="100" y="310" width="30" height="50" rx="12" fill="white"/>
+    <rect data-zone="leg-br" x="270" y="310" width="30" height="50" rx="12" fill="white"/>
     <!-- tail -->
-    <path data-zone="tail" d="M320,240 Q360,200 350,170" fill="none" stroke-width="10"/>
+    <path data-zone="tail" d="M320,240 Q370,200 360,155 Q355,140 340,155 Q350,180 320,220" fill="white" stroke-width="6"/>
+    <!-- spot on back -->
+    <circle data-zone="spot" cx="230" cy="240" r="25" fill="white"/>
   </g>
 `);
 
 const SVG_LION = svgWrap(`
   <g fill="none" stroke="#222" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
-    <!-- mane -->
-    <circle data-zone="mane" cx="200" cy="160" r="105" fill="white"/>
-    <!-- mane spikes -->
-    <path data-zone="mane" d="M200,55 Q215,30 230,60 Q250,35 260,65 Q280,45 285,75 Q305,65 300,95 Q320,90 305,120 Q320,125 305,145 Q318,155 300,170 Q310,185 295,195 Q305,210 285,215 Q290,235 270,230 Q265,250 245,240 Q235,258 215,245 Q200,260 185,245 Q165,258 155,240 Q135,250 130,230 Q110,235 115,215 Q95,210 105,195 Q90,185 100,170 Q82,155 95,145 Q80,125 95,120 Q80,90 100,95 Q95,65 115,75 Q120,45 140,65 Q150,35 170,60 Q185,30 200,55Z" fill="white"/>
+    <!-- mane outer -->
+    <path data-zone="mane-outer" d="M200,55 Q215,30 230,60 Q250,35 260,65 Q280,45 285,75 Q305,65 300,95 Q320,90 305,120 Q320,125 305,145 Q318,155 300,170 Q310,185 295,195 Q305,210 285,215 Q290,235 270,230 Q265,250 245,240 Q235,258 215,245 Q200,260 185,245 Q165,258 155,240 Q135,250 130,230 Q110,235 115,215 Q95,210 105,195 Q90,185 100,170 Q82,155 95,145 Q80,125 95,120 Q80,90 100,95 Q95,65 115,75 Q120,45 140,65 Q150,35 170,60 Q185,30 200,55Z" fill="white"/>
+    <!-- mane inner ring -->
+    <circle data-zone="mane-inner" cx="200" cy="160" r="95" fill="white"/>
     <!-- face -->
-    <circle data-zone="face" cx="200" cy="165" r="70" fill="white"/>
+    <circle data-zone="face" cx="200" cy="165" r="68" fill="white"/>
+    <!-- forehead -->
+    <circle data-zone="forehead" cx="200" cy="130" r="25" fill="white"/>
+    <!-- eye areas -->
+    <circle data-zone="eye-area-l" cx="178" cy="150" r="16" fill="white"/>
+    <circle data-zone="eye-area-r" cx="222" cy="150" r="16" fill="white"/>
     <!-- eyes -->
-    <ellipse cx="178" cy="150" rx="10" ry="12" fill="#222"/>
-    <ellipse cx="222" cy="150" rx="10" ry="12" fill="#222"/>
+    <ellipse cx="178" cy="150" rx="8" ry="10" fill="#222"/>
+    <ellipse cx="222" cy="150" rx="8" ry="10" fill="#222"/>
     <!-- nose -->
-    <polygon points="200,172 192,183 208,183" fill="#CC7744"/>
-    <!-- mouth -->
-    <path d="M192,183 Q200,195 208,183"/>
-    <!-- body -->
-    <ellipse data-zone="body" cx="200" cy="310" rx="80" ry="60" fill="white"/>
+    <polygon data-zone="nose" points="200,172 190,185 210,185" fill="white"/>
+    <!-- mouth area -->
+    <ellipse data-zone="mouth-area" cx="200" cy="195" rx="25" ry="12" fill="white"/>
+    <path d="M192,185 Q200,198 208,185"/>
+    <!-- body upper -->
+    <ellipse data-zone="body-upper" cx="200" cy="290" rx="78" ry="40" fill="white"/>
+    <!-- body lower -->
+    <ellipse data-zone="body-lower" cx="200" cy="330" rx="70" ry="30" fill="white"/>
+    <!-- belly -->
+    <ellipse data-zone="belly" cx="200" cy="310" rx="35" ry="22" fill="white"/>
     <!-- paws -->
-    <ellipse data-zone="paw-l" cx="150" cy="365" rx="28" ry="16" fill="white"/>
-    <ellipse data-zone="paw-r" cx="250" cy="365" rx="28" ry="16" fill="white"/>
+    <ellipse data-zone="paw-fl" cx="145" cy="365" rx="30" ry="16" fill="white"/>
+    <ellipse data-zone="paw-fr" cx="255" cy="365" rx="30" ry="16" fill="white"/>
+    <ellipse data-zone="paw-bl" cx="160" cy="355" rx="20" ry="12" fill="white"/>
+    <ellipse data-zone="paw-br" cx="240" cy="355" rx="20" ry="12" fill="white"/>
     <!-- tail -->
-    <path data-zone="tail" d="M280,300 Q330,280 340,250 Q350,235 340,230" fill="none" stroke-width="8"/>
-    <circle cx="340" cy="228" r="12" fill="white" data-zone="tail-tip"/>
+    <path data-zone="tail" d="M280,310 Q335,290 345,255 Q350,238 340,235 Q330,238 335,260 Q330,280 280,295" fill="white" stroke-width="5"/>
+    <!-- tail tip -->
+    <circle data-zone="tail-tip" cx="340" cy="235" r="14" fill="white"/>
   </g>
 `);
 
 const SVG_ELEPHANT = svgWrap(`
   <g fill="none" stroke="#222" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
-    <!-- body -->
-    <ellipse data-zone="body" cx="210" cy="250" rx="130" ry="100" fill="white"/>
+    <!-- body upper -->
+    <ellipse data-zone="body-upper" cx="220" cy="230" rx="120" ry="60" fill="white"/>
+    <!-- body lower / belly -->
+    <ellipse data-zone="belly" cx="220" cy="290" rx="110" ry="50" fill="white"/>
+    <!-- back -->
+    <ellipse data-zone="back" cx="280" cy="220" rx="55" ry="40" fill="white"/>
     <!-- head -->
-    <circle data-zone="head" cx="160" cy="150" r="80" fill="white"/>
-    <!-- ear -->
-    <ellipse data-zone="ear" cx="90" cy="150" rx="50" ry="65" fill="white"/>
-    <ellipse cx="90" cy="150" rx="30" ry="40" fill="none" stroke-dasharray="4"/>
+    <circle data-zone="head" cx="150" cy="150" r="75" fill="white"/>
+    <!-- forehead -->
+    <circle data-zone="forehead" cx="150" cy="115" r="30" fill="white"/>
+    <!-- ear outer -->
+    <ellipse data-zone="ear-outer" cx="80" cy="155" rx="50" ry="65" fill="white"/>
+    <!-- ear inner -->
+    <ellipse data-zone="ear-inner" cx="80" cy="155" rx="30" ry="40" fill="white"/>
+    <!-- cheek -->
+    <circle data-zone="cheek" cx="170" cy="175" r="22" fill="white"/>
     <!-- eye -->
-    <circle cx="170" cy="135" r="8" fill="#222"/>
-    <circle cx="173" cy="132" r="3" fill="white"/>
-    <!-- trunk -->
-    <path data-zone="trunk" d="M160,210 Q140,250 130,290 Q125,310 140,320 Q155,325 160,310 Q165,290 175,270" fill="white" stroke-width="7"/>
-    <!-- tusks -->
-    <path d="M180,200 Q195,230 185,250" stroke="white" stroke-width="8"/>
-    <path d="M180,200 Q195,230 185,250" stroke="#222" stroke-width="4"/>
+    <circle cx="165" cy="135" r="8" fill="#222"/>
+    <circle cx="168" cy="132" r="3" fill="white"/>
+    <!-- trunk upper -->
+    <path data-zone="trunk-upper" d="M145,205 Q130,240 125,270" fill="none" stroke-width="18"/>
+    <!-- trunk lower -->
+    <path data-zone="trunk-lower" d="M125,270 Q120,300 135,320 Q150,325 155,310" fill="none" stroke-width="16"/>
+    <!-- tusk -->
+    <path data-zone="tusk" d="M175,200 Q195,235 185,260" fill="none" stroke-width="6" stroke="#222"/>
     <!-- legs -->
-    <rect data-zone="leg1" x="120" y="320" width="40" height="55" rx="15" fill="white"/>
-    <rect data-zone="leg2" x="175" y="325" width="40" height="55" rx="15" fill="white"/>
-    <rect data-zone="leg3" x="250" y="325" width="40" height="55" rx="15" fill="white"/>
-    <rect data-zone="leg4" x="290" y="320" width="40" height="55" rx="15" fill="white"/>
+    <rect data-zone="leg-fl" x="115" y="318" width="42" height="58" rx="16" fill="white"/>
+    <rect data-zone="leg-fr" x="170" y="322" width="42" height="58" rx="16" fill="white"/>
+    <rect data-zone="leg-bl" x="245" y="322" width="42" height="58" rx="16" fill="white"/>
+    <rect data-zone="leg-br" x="295" y="318" width="42" height="58" rx="16" fill="white"/>
+    <!-- toenails -->
+    <ellipse data-zone="foot-fl" cx="136" cy="378" rx="22" ry="8" fill="white"/>
+    <ellipse data-zone="foot-fr" cx="191" cy="382" rx="22" ry="8" fill="white"/>
+    <ellipse data-zone="foot-bl" cx="266" cy="382" rx="22" ry="8" fill="white"/>
+    <ellipse data-zone="foot-br" cx="316" cy="378" rx="22" ry="8" fill="white"/>
     <!-- tail -->
-    <path d="M340,240 Q365,230 370,210" stroke-width="6"/>
-    <path d="M368,215 Q375,200 365,195 Q355,195 362,210" fill="#222"/>
+    <path data-zone="tail" d="M340,235 Q370,220 375,195 Q378,180 368,178" fill="none" stroke-width="6"/>
   </g>
 `);
 
 const SVG_FISH = svgWrap(`
   <g fill="none" stroke="#222" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
-    <!-- body -->
-    <ellipse data-zone="body" cx="200" cy="200" rx="130" ry="70" fill="white"/>
-    <!-- tail -->
-    <polygon data-zone="tail" points="330,200 390,150 390,250" fill="white"/>
+    <!-- body front -->
+    <ellipse data-zone="body-front" cx="150" cy="200" rx="70" ry="65" fill="white"/>
+    <!-- body middle -->
+    <ellipse data-zone="body-middle" cx="220" cy="200" rx="65" ry="55" fill="white"/>
+    <!-- body back -->
+    <ellipse data-zone="body-back" cx="280" cy="200" rx="50" ry="45" fill="white"/>
+    <!-- tail top -->
+    <polygon data-zone="tail-top" points="320,200 385,145 385,200" fill="white"/>
+    <!-- tail bottom -->
+    <polygon data-zone="tail-bottom" points="320,200 385,200 385,255" fill="white"/>
     <!-- dorsal fin -->
-    <path data-zone="fin-top" d="M160,130 Q200,60 240,130" fill="white"/>
+    <path data-zone="fin-top" d="M155,140 Q195,55 235,140" fill="white"/>
     <!-- bottom fin -->
-    <path data-zone="fin-bottom" d="M180,270 Q200,320 230,270" fill="white"/>
+    <path data-zone="fin-bottom" d="M175,260 Q200,325 230,260" fill="white"/>
+    <!-- side fin -->
+    <path data-zone="fin-side" d="M140,220 Q115,260 155,260" fill="white"/>
+    <!-- eye ring -->
+    <circle data-zone="eye-ring" cx="115" cy="185" r="20" fill="white" stroke-width="5"/>
     <!-- eye -->
-    <circle cx="120" cy="185" r="16" fill="white" stroke-width="5"/>
-    <circle cx="120" cy="185" r="8" fill="#222"/>
-    <circle cx="123" cy="182" r="3" fill="white"/>
+    <circle cx="115" cy="185" r="8" fill="#222"/>
+    <circle cx="118" cy="182" r="3" fill="white"/>
     <!-- mouth -->
     <path d="M72,200 Q80,210 72,220"/>
-    <!-- scales -->
-    <path d="M150,175 Q170,165 190,175" fill="none" stroke-width="3"/>
-    <path d="M180,195 Q200,185 220,195" fill="none" stroke-width="3"/>
-    <path d="M210,175 Q230,165 250,175" fill="none" stroke-width="3"/>
-    <path d="M150,210 Q170,220 190,210" fill="none" stroke-width="3"/>
-    <path d="M210,210 Q230,220 250,210" fill="none" stroke-width="3"/>
-    <!-- stripes -->
-    <path data-zone="stripe1" d="M160,140 Q165,200 160,260" fill="none" stroke-width="4" stroke="#222"/>
-    <path data-zone="stripe2" d="M230,145 Q235,200 230,255" fill="none" stroke-width="4" stroke="#222"/>
+    <!-- scales pattern -->
+    <circle data-zone="scale1" cx="170" cy="185" r="12" fill="white" stroke-width="3"/>
+    <circle data-zone="scale2" cx="200" cy="200" r="12" fill="white" stroke-width="3"/>
+    <circle data-zone="scale3" cx="230" cy="185" r="12" fill="white" stroke-width="3"/>
+    <circle data-zone="scale4" cx="260" cy="200" r="12" fill="white" stroke-width="3"/>
+    <circle data-zone="scale5" cx="185" cy="215" r="12" fill="white" stroke-width="3"/>
+    <circle data-zone="scale6" cx="245" cy="215" r="12" fill="white" stroke-width="3"/>
   </g>
 `);
 

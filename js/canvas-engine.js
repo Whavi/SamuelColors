@@ -173,8 +173,24 @@ const CanvasEngine = (() => {
      ------------------------------------------------------- */
   function renderOutline(svgString) {
     return new Promise((resolve) => {
+      // Strip fills from SVG — keep only strokes (black outlines)
+      // so the outline canvas is transparent except for lines
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(svgString, 'image/svg+xml');
+      doc.querySelectorAll('*').forEach(el => {
+        const fill = el.getAttribute('fill');
+        // Remove white/colored fills, keep only explicit dark fills (eyes, nose etc.)
+        if (fill && fill !== 'none') {
+          const lower = fill.toLowerCase();
+          if (lower === 'white' || lower === '#ffffff' || lower === '#fff') {
+            el.setAttribute('fill', 'none');
+          }
+        }
+      });
+      const strippedSvg = new XMLSerializer().serializeToString(doc.documentElement);
+
       const img = new Image();
-      const blob = new Blob([svgString], { type: 'image/svg+xml' });
+      const blob = new Blob([strippedSvg], { type: 'image/svg+xml' });
       const url = URL.createObjectURL(blob);
       img.onload = () => {
         outlineCtx.clearRect(0, 0, width, height);
@@ -200,18 +216,13 @@ const CanvasEngine = (() => {
     if (width === 0 || height === 0) { outlineData = null; return; }
     const imgData = outlineCtx.getImageData(0, 0, width, height);
     const src = imgData.data;
-    // Create a boolean mask: 1 = wall (outline/transparent), 0 = passable
+    // Wall = only dark opaque pixels (the actual black strokes)
     outlineData = new Uint8Array(width * height);
     for (let i = 0; i < width * height; i++) {
       const idx = i * 4;
       const r = src[idx], g = src[idx+1], b = src[idx+2], a = src[idx+3];
-      // Dark pixels with some opacity = outline walls
-      if (a > 60 && (r + g + b) / 3 < 140) {
-        outlineData[i] = 1;
-      }
-      // Fully transparent pixels = outside the drawing = also a wall
-      // This prevents filling outside the SVG shapes
-      else if (a < 10) {
+      // Dark pixel with some opacity = outline wall (includes anti-aliased edges)
+      if (a > 40 && (r + g + b) / 3 < 160) {
         outlineData[i] = 1;
       }
     }
@@ -315,108 +326,112 @@ const CanvasEngine = (() => {
 
   /* -------------------------------------------------------
      Render math operation labels on zones
+     Uses pixel-based centroid detection for accurate placement
      ------------------------------------------------------- */
   function renderMathLabels() {
-    if (!mathExercise) return;
+    if (!mathExercise || !currentSvg) return;
 
+    // Render original SVG (with white fills) on a temp canvas to find zone centers
+    const tmpCanvas = document.createElement('canvas');
+    tmpCanvas.width = width;
+    tmpCanvas.height = height;
+    const tmpCtx = tmpCanvas.getContext('2d');
+
+    // Color each zone uniquely
     const parser = new DOMParser();
     const doc = parser.parseFromString(currentSvg, 'image/svg+xml');
-
-    mathExercise.zones.forEach(zone => {
-      const el = doc.querySelector(`[data-zone="${zone.zoneId}"]`);
-      if (!el) return;
-
-      // Get zone center approximately
-      const bbox = getApproximateBBox(el);
-      if (!bbox) return;
-
-      const cx = (bbox.x + bbox.width / 2) * (width / 400);
-      const cy = (bbox.y + bbox.height / 2) * (height / 400);
-
-      // Draw label on outline canvas
-      const fontSize = Math.max(10, Math.min(14, width / 30));
-      outlineCtx.save();
-      outlineCtx.font = `bold ${fontSize}px ${getComputedStyle(document.body).fontFamily}`;
-      outlineCtx.textAlign = 'center';
-      outlineCtx.textBaseline = 'middle';
-
-      // Background
-      const metrics = outlineCtx.measureText(zone.operation);
-      const tw = metrics.width + 8;
-      const th = fontSize + 6;
-      outlineCtx.fillStyle = 'rgba(255,255,255,0.85)';
-      outlineCtx.beginPath();
-      outlineCtx.roundRect(cx - tw/2, cy - th/2, tw, th, 4);
-      outlineCtx.fill();
-
-      outlineCtx.strokeStyle = '#333';
-      outlineCtx.lineWidth = 1;
-      outlineCtx.beginPath();
-      outlineCtx.roundRect(cx - tw/2, cy - th/2, tw, th, 4);
-      outlineCtx.stroke();
-
-      // Text
-      outlineCtx.fillStyle = '#222';
-      outlineCtx.fillText(zone.operation, cx, cy);
-      outlineCtx.restore();
-    });
-  }
-
-  /* -------------------------------------------------------
-     Approximate bounding box from SVG element attributes
-     ------------------------------------------------------- */
-  function getApproximateBBox(el) {
-    const tag = el.tagName.toLowerCase();
-    if (tag === 'circle') {
-      const cx = parseFloat(el.getAttribute('cx') || 0);
-      const cy = parseFloat(el.getAttribute('cy') || 0);
-      const r = parseFloat(el.getAttribute('r') || 0);
-      return { x: cx - r, y: cy - r, width: r*2, height: r*2 };
-    }
-    if (tag === 'ellipse') {
-      const cx = parseFloat(el.getAttribute('cx') || 0);
-      const cy = parseFloat(el.getAttribute('cy') || 0);
-      const rx = parseFloat(el.getAttribute('rx') || 0);
-      const ry = parseFloat(el.getAttribute('ry') || 0);
-      return { x: cx - rx, y: cy - ry, width: rx*2, height: ry*2 };
-    }
-    if (tag === 'rect') {
-      return {
-        x: parseFloat(el.getAttribute('x') || 0),
-        y: parseFloat(el.getAttribute('y') || 0),
-        width: parseFloat(el.getAttribute('width') || 0),
-        height: parseFloat(el.getAttribute('height') || 0)
-      };
-    }
-    if (tag === 'polygon') {
-      const points = (el.getAttribute('points') || '').trim().split(/[\s,]+/).map(Number);
-      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-      for (let i = 0; i < points.length; i += 2) {
-        minX = Math.min(minX, points[i]);
-        maxX = Math.max(maxX, points[i]);
-        minY = Math.min(minY, points[i+1]);
-        maxY = Math.max(maxY, points[i+1]);
+    const zoneColors = {};
+    let ci = 0;
+    doc.querySelectorAll('[data-zone]').forEach(el => {
+      const zid = el.getAttribute('data-zone');
+      if (!zoneColors[zid]) {
+        ci++;
+        zoneColors[zid] = [ci * 40 % 255, ci * 70 % 255, ci * 110 % 255];
       }
-      return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
-    }
-    if (tag === 'path') {
-      // Rough parse of path d attribute
-      const d = el.getAttribute('d') || '';
-      const nums = d.match(/-?\d+\.?\d*/g);
-      if (!nums || nums.length < 2) return { x: 100, y: 100, width: 200, height: 200 };
-      const coords = nums.map(Number);
-      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-      for (let i = 0; i < coords.length; i += 2) {
-        if (i+1 < coords.length) {
-          minX = Math.min(minX, coords[i]);
-          maxX = Math.max(maxX, coords[i]);
-          minY = Math.min(minY, coords[i+1]);
-          maxY = Math.max(maxY, coords[i+1]);
+      const c = zoneColors[zid];
+      el.setAttribute('fill', `rgb(${c[0]},${c[1]},${c[2]})`);
+      el.setAttribute('stroke', `rgb(${c[0]},${c[1]},${c[2]})`);
+      el.setAttribute('stroke-width', '1');
+    });
+    // Hide non-zone elements
+    doc.querySelectorAll('*:not([data-zone])').forEach(el => {
+      if (el.tagName !== 'svg' && el.tagName !== 'g' && !el.querySelector('[data-zone]')) {
+        el.setAttribute('fill', 'none');
+        el.setAttribute('stroke', 'none');
+      }
+    });
+
+    const svgStr = new XMLSerializer().serializeToString(doc.documentElement);
+    const img = new Image();
+    const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    img.onload = () => {
+      tmpCtx.drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+
+      const imgData = tmpCtx.getImageData(0, 0, width, height).data;
+
+      // Find centroid of each zone by scanning pixels
+      const zoneSums = {}; // {zoneId: {sx, sy, count}}
+      for (const zid of Object.keys(zoneColors)) {
+        zoneSums[zid] = { sx: 0, sy: 0, count: 0 };
+      }
+
+      for (let y = 0; y < height; y += 2) {
+        for (let x = 0; x < width; x += 2) {
+          const idx = (y * width + x) * 4;
+          const r = imgData[idx], g = imgData[idx+1], b = imgData[idx+2], a = imgData[idx+3];
+          if (a < 50) continue;
+
+          for (const [zid, c] of Object.entries(zoneColors)) {
+            if (Math.abs(r - c[0]) < 25 && Math.abs(g - c[1]) < 25 && Math.abs(b - c[2]) < 25) {
+              zoneSums[zid].sx += x;
+              zoneSums[zid].sy += y;
+              zoneSums[zid].count++;
+              break;
+            }
+          }
         }
       }
-      return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
-    }
-    return { x: 100, y: 100, width: 200, height: 200 };
+
+      // Draw labels at centroids
+      const fontSize = Math.max(11, Math.min(16, width / 28));
+      mathExercise.zones.forEach(zone => {
+        const s = zoneSums[zone.zoneId];
+        if (!s || s.count < 5) return;
+
+        const cx = s.sx / s.count;
+        const cy = s.sy / s.count;
+
+        outlineCtx.save();
+        outlineCtx.font = `bold ${fontSize}px ${getComputedStyle(document.body).fontFamily}`;
+        outlineCtx.textAlign = 'center';
+        outlineCtx.textBaseline = 'middle';
+
+        const metrics = outlineCtx.measureText(zone.operation);
+        const tw = metrics.width + 10;
+        const th = fontSize + 8;
+
+        // White background
+        outlineCtx.fillStyle = 'rgba(255,255,255,0.9)';
+        outlineCtx.beginPath();
+        outlineCtx.roundRect(cx - tw/2, cy - th/2, tw, th, 4);
+        outlineCtx.fill();
+
+        // Border
+        outlineCtx.strokeStyle = '#555';
+        outlineCtx.lineWidth = 1.5;
+        outlineCtx.beginPath();
+        outlineCtx.roundRect(cx - tw/2, cy - th/2, tw, th, 4);
+        outlineCtx.stroke();
+
+        // Text
+        outlineCtx.fillStyle = '#111';
+        outlineCtx.fillText(zone.operation, cx, cy);
+        outlineCtx.restore();
+      });
+    };
+    img.src = url;
   }
 
   /* -------------------------------------------------------
