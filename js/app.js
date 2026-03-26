@@ -108,13 +108,110 @@
   /* -------------------------------------------------------
      Init
      ------------------------------------------------------- */
+  /* -------------------------------------------------------
+     i18n translations
+     ------------------------------------------------------- */
+  const I18N = {
+    fr: {
+      'nav.home': 'Accueil',
+      'nav.drawings': 'Dessins',
+      'hero.title': 'Bienvenue sur <span class="highlight">SamuelColors</span> !',
+      'hero.sub': "L'appli de coloriage qui rend les maths amusantes",
+      'hero.start': '🚀 Commencer',
+      'stats.drawings': 'Dessins',
+      'stats.categories': 'Categories',
+      'stats.calctypes': 'Types de calculs',
+      'stats.levels': 'Niveaux',
+      'howto.title': 'Comment ca marche ?',
+      'howto.step1': 'Choisis un dessin',
+      'howto.step1d': 'Animaux, heros ou formes simples',
+      'howto.step2': 'Colorie !',
+      'howto.step2d': 'Pinceau, seau ou calculs maths',
+      'howto.step3': 'Sauvegarde',
+      'howto.step3d': "Telecharge ton chef-d'oeuvre en PNG",
+      'cta.title': 'Pret a colorier ?',
+      'cta.sub': 'C\'est gratuit et ca marche directement dans ton navigateur !',
+      'cta.btn': 'Choisir un dessin 🎨',
+      'picker.title': 'Choisis ton dessin',
+    },
+    en: {
+      'nav.home': 'Home',
+      'nav.drawings': 'Drawings',
+      'hero.title': 'Welcome to <span class="highlight">SamuelColors</span>!',
+      'hero.sub': 'The coloring app that makes math fun',
+      'hero.start': '🚀 Start',
+      'stats.drawings': 'Drawings',
+      'stats.categories': 'Categories',
+      'stats.calctypes': 'Calc types',
+      'stats.levels': 'Levels',
+      'howto.title': 'How does it work?',
+      'howto.step1': 'Pick a drawing',
+      'howto.step1d': 'Animals, heroes or simple shapes',
+      'howto.step2': 'Color it!',
+      'howto.step2d': 'Brush, bucket or math challenges',
+      'howto.step3': 'Save',
+      'howto.step3d': 'Download your masterpiece as PNG',
+      'cta.title': 'Ready to color?',
+      'cta.sub': "It's free and works right in your browser!",
+      'cta.btn': 'Pick a drawing 🎨',
+      'picker.title': 'Pick your drawing',
+    }
+  };
+
+  let currentLang = localStorage.getItem('sc-lang') || 'fr';
+
+  function applyLang(lang) {
+    currentLang = lang;
+    localStorage.setItem('sc-lang', lang);
+    const dict = I18N[lang] || I18N.fr;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n;
+      if (dict[key]) {
+        if (key === 'hero.title') {
+          el.innerHTML = dict[key]; // contains <span>
+        } else {
+          el.textContent = dict[key];
+        }
+      }
+    });
+    const langBtn = document.getElementById('langToggle');
+    if (langBtn) langBtn.textContent = lang.toUpperCase();
+  }
+
+  /* -------------------------------------------------------
+     Dark mode
+     ------------------------------------------------------- */
+  let darkMode = localStorage.getItem('sc-dark') === 'true';
+
+  function applyDark(on) {
+    darkMode = on;
+    localStorage.setItem('sc-dark', on);
+    document.documentElement.setAttribute('data-theme', on ? 'dark' : 'light');
+    const btn = document.getElementById('darkToggle');
+    if (btn) btn.textContent = on ? '☀️' : '🌙';
+  }
+
   function init() {
     CanvasEngine.init(drawingCanvas, outlineCanvas, canvasContainer, canvasCursor);
     setupNavigation();
     setupToolbar();
     setupModals();
+    setupPicker();
     renderCategories();
     updateFavColorButtons();
+
+    // Dark mode toggle
+    const darkBtn = $('#darkToggle');
+    if (darkBtn) darkBtn.addEventListener('click', () => { applyDark(!darkMode); playClickSound(); });
+    applyDark(darkMode);
+
+    // Language toggle
+    const langBtn = $('#langToggle');
+    if (langBtn) langBtn.addEventListener('click', () => {
+      applyLang(currentLang === 'fr' ? 'en' : 'fr');
+      playClickSound();
+    });
+    applyLang(currentLang);
 
     // Auto-verify callback for math mode
     CanvasEngine.setOnAllZonesColored(() => {
@@ -131,6 +228,116 @@
 
     // Sound context (lazy init)
     window._audioCtx = null;
+  }
+
+  /* -------------------------------------------------------
+     Drawing Picker Modal
+     ------------------------------------------------------- */
+  function setupPicker() {
+    const overlay = $('#pickerModal');
+    const closeBtn = $('#pickerClose');
+    const gridLibre = $('#pickerGridLibre');
+    const gridMath = $('#pickerGridMath');
+    const contentLibre = $('#pickerLibre');
+    const contentMath = $('#pickerMath');
+    const tabs = $$('[data-picker-tab]');
+    const mathTypeChips = $$('[data-mtype]');
+    const diffChips = $$('[data-diff]');
+
+    let pickerMathType = 'addition';
+    let pickerDifficulty = 'easy';
+
+    // Open buttons (hero + CTA + navbar)
+    ['btnOpenPicker', 'btnOpenPicker2', 'navOpenPicker'].forEach(id => {
+      const btn = $('#' + id);
+      if (btn) btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        navLinks.classList.remove('open');
+        burgerMenu.classList.remove('active');
+        openPicker();
+      });
+    });
+
+    // Close
+    function closePicker() {
+      overlay.hidden = true;
+      document.body.style.overflow = '';
+    }
+    closeBtn.addEventListener('click', closePicker);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closePicker(); });
+
+    // Tabs
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const which = tab.dataset.pickerTab;
+        contentLibre.hidden = (which !== 'libre');
+        contentMath.hidden = (which !== 'math');
+        if (which === 'math') populateMathGrid();
+      });
+    });
+
+    // Math type chips
+    mathTypeChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        mathTypeChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        pickerMathType = chip.dataset.mtype;
+        populateMathGrid();
+      });
+    });
+
+    // Difficulty chips
+    diffChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        diffChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        pickerDifficulty = chip.dataset.diff;
+        populateMathGrid();
+      });
+    });
+
+    function openPicker() {
+      overlay.hidden = false;
+      document.body.style.overflow = 'hidden';
+      populateLibreGrid();
+      populateMathGrid();
+    }
+
+    function populateLibreGrid() {
+      gridLibre.textContent = '';
+      DRAWINGS.forEach(d => {
+        const card = createPickerCard(d, () => {
+          closePicker();
+          openColoring(d.id, false);
+        });
+        gridLibre.appendChild(card);
+      });
+    }
+
+    function populateMathGrid() {
+      gridMath.textContent = '';
+      const compatible = getMathCompatibleDrawings();
+      compatible.forEach(d => {
+        const card = createPickerCard(d, () => {
+          closePicker();
+          selectedMathType = pickerMathType;
+          selectedDifficulty = pickerDifficulty;
+          openColoring(d.id, true);
+        });
+        gridMath.appendChild(card);
+      });
+    }
+
+    function createPickerCard(drawing, onClick) {
+      const preview = createEl('div', { className: 'picker-card-preview' });
+      preview.innerHTML = drawing.svg;
+      const title = createEl('h4', null, drawing.name);
+      const card = createEl('div', { className: 'picker-card' }, [preview, title]);
+      card.addEventListener('click', () => { playClickSound(); onClick(); });
+      return card;
+    }
   }
 
   /* -------------------------------------------------------
@@ -331,7 +538,7 @@
     }
 
     // Set back button target
-    coloringBack.dataset.action = isMath ? 'go-math' : 'go-categories';
+    coloringBack.dataset.action = 'go-home';
 
     // Default tool: fill for math, brush for free
     setActiveTool(isMath ? 'fill' : 'brush');
@@ -421,7 +628,7 @@
     // Save PNG
     btnSave.addEventListener('click', () => {
       const name = currentDrawingId || 'coloriage';
-      CanvasEngine.downloadPNG('sacol-' + name + '.png');
+      CanvasEngine.downloadPNG('samuelcolors-' + name + '.png');
       playClickSound();
     });
 
@@ -481,7 +688,7 @@
      ------------------------------------------------------- */
   function loadFavColors() {
     try {
-      const saved = localStorage.getItem('sacol-fav-colors');
+      const saved = localStorage.getItem('samuelcolors-fav-colors');
       if (saved) return JSON.parse(saved);
     } catch(e) {}
     return ['#FF0000', '#00AA00', '#0066FF', '#FFD700'];
@@ -489,7 +696,7 @@
 
   function saveFavColors() {
     try {
-      localStorage.setItem('sacol-fav-colors', JSON.stringify(favColors));
+      localStorage.setItem('samuelcolors-fav-colors', JSON.stringify(favColors));
     } catch(e) {}
   }
 
@@ -512,7 +719,7 @@
     });
     btnDownloadResult.addEventListener('click', () => {
       const name = currentDrawingId || 'coloriage';
-      CanvasEngine.downloadPNG('sacol-' + name + '-resultat.png');
+      CanvasEngine.downloadPNG('samuelcolors-' + name + '-resultat.png');
     });
 
     // Close modals on overlay click
@@ -664,7 +871,7 @@
     }
     if (e.ctrlKey && e.key === 's') {
       e.preventDefault();
-      CanvasEngine.downloadPNG('sacol-' + (currentDrawingId || 'coloriage') + '.png');
+      CanvasEngine.downloadPNG('samuelcolors-' + (currentDrawingId || 'coloriage') + '.png');
     }
     if (e.key === 'b' && !e.ctrlKey) setActiveTool('brush');
     if (e.key === 'e' && !e.ctrlKey) setActiveTool('eraser');

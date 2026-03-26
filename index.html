@@ -3,64 +3,131 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sacol - Coloriage Interactif Éducatif</title>
+  <title>SamuelColors - Coloriage Interactif Éducatif</title>
   <meta name="description" content="Application de coloriage interactif pour enfants. Colorie des animaux, super-héros et apprends les maths en t'amusant !">
   <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
   <!-- ========== NAVBAR ========== -->
   <nav class="navbar" id="navbar">
-    <div class="navbar-brand">
+    <div class="navbar-brand" data-action="go-home" style="cursor:pointer">
       <span class="logo">🎨</span>
-      <span class="logo-text">Sacol</span>
+      <span class="logo-text">SamuelColors</span>
     </div>
     <button class="burger-menu" id="burgerMenu" aria-label="Menu">
       <span></span><span></span><span></span>
     </button>
-    <ul class="nav-links" id="navLinks">
-      <li><a href="#" data-view="home" class="nav-link active">Accueil</a></li>
-      <li><a href="#" data-view="categories" class="nav-link">Catégories</a></li>
-      <li><a href="#" data-view="math" class="nav-link">Maths</a></li>
-    </ul>
+    <div class="nav-links" id="navLinks">
+      <a href="#" data-view="home" class="nav-link active" data-i18n="nav.home">Accueil</a>
+      <a href="#" class="nav-link" id="navOpenPicker" data-i18n="nav.drawings">Dessins</a>
+      <div class="nav-controls">
+        <button class="nav-toggle" id="langToggle" title="Switch language">FR</button>
+        <button class="nav-toggle" id="darkToggle" title="Dark mode">🌙</button>
+      </div>
+    </div>
   </nav>
 
   <!-- ========== HOME VIEW ========== -->
   <section class="view active" id="view-home">
+    <!-- Hero -->
     <div class="hero">
-      <h1>Bienvenue sur <span class="highlight">Sacol</span> !</h1>
-      <p class="hero-sub">Colorie, apprends et amuse-toi !</p>
+      <div class="hero-floating">
+        <span class="float-emoji float-1">🎨</span>
+        <span class="float-emoji float-2">🖌️</span>
+        <span class="float-emoji float-3">🌈</span>
+        <span class="float-emoji float-4">⭐</span>
+        <span class="float-emoji float-5">🦋</span>
+        <span class="float-emoji float-6">🐱</span>
+      </div>
+      <h1 data-i18n="hero.title">Bienvenue sur <span class="highlight">SamuelColors</span> !</h1>
+      <p class="hero-sub" data-i18n="hero.sub">L'appli de coloriage qui rend les maths amusantes</p>
       <div class="hero-actions">
-        <button class="btn btn-primary btn-lg" data-action="go-categories">
-          🎨 Coloriage Libre
-        </button>
-        <button class="btn btn-secondary btn-lg" data-action="go-math">
-          🧮 Coloriage Maths
-        </button>
+        <button class="btn btn-primary btn-lg btn-bounce" id="btnOpenPicker" data-i18n="hero.start">🚀 Commencer</button>
       </div>
     </div>
-    <div class="features-grid">
-      <div class="feature-card" data-action="go-categories">
-        <div class="feature-icon">🐾</div>
-        <h3>Animaux</h3>
-        <p>Chat, chien, lion, éléphant...</p>
+
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat-item"><span class="stat-number">15</span><span class="stat-label" data-i18n="stats.drawings">Dessins</span></div>
+      <div class="stat-item"><span class="stat-number">5</span><span class="stat-label" data-i18n="stats.categories">Categories</span></div>
+      <div class="stat-item"><span class="stat-number">4</span><span class="stat-label" data-i18n="stats.calctypes">Types de calculs</span></div>
+      <div class="stat-item"><span class="stat-number">3</span><span class="stat-label" data-i18n="stats.levels">Niveaux</span></div>
+    </div>
+
+    <!-- Comment ca marche -->
+    <div class="home-section">
+      <div class="section-header">
+        <h2 data-i18n="howto.title">Comment ca marche ?</h2>
       </div>
-      <div class="feature-card" data-action="go-categories">
-        <div class="feature-icon">🦸</div>
-        <h3>Super-héros</h3>
-        <p>Héros volant, robot, ninja...</p>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3 data-i18n="howto.step1">Choisis un dessin</h3>
+          <p data-i18n="howto.step1d">Animaux, heros ou formes simples</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3 data-i18n="howto.step2">Colorie !</h3>
+          <p data-i18n="howto.step2d">Pinceau, seau ou calculs maths</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3 data-i18n="howto.step3">Sauvegarde</h3>
+          <p data-i18n="howto.step3d">Telecharge ton chef-d'oeuvre en PNG</p>
+        </div>
       </div>
-      <div class="feature-card" data-action="go-math">
-        <div class="feature-icon">➕</div>
-        <h3>Additions</h3>
-        <p>Colorie en calculant !</p>
-      </div>
-      <div class="feature-card" data-action="go-math">
-        <div class="feature-icon">✖️</div>
-        <h3>Multiplications</h3>
-        <p>Apprends tes tables !</p>
+    </div>
+
+    <!-- CTA final -->
+    <div class="home-cta">
+      <h2 data-i18n="cta.title">Pret a colorier ?</h2>
+      <p data-i18n="cta.sub">C'est gratuit et ca marche directement dans ton navigateur !</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary btn-lg btn-bounce" id="btnOpenPicker2" data-i18n="cta.btn">Choisir un dessin 🎨</button>
       </div>
     </div>
   </section>
+
+  <!-- ========== DRAWING PICKER MODAL ========== -->
+  <div class="picker-overlay" id="pickerModal" hidden>
+    <div class="picker-modal">
+      <div class="picker-header">
+        <h2 data-i18n="picker.title">Choisis ton dessin</h2>
+        <button class="picker-close" id="pickerClose">✕</button>
+      </div>
+      <div class="picker-tabs">
+        <button class="picker-tab active" data-picker-tab="libre">🎨 Coloriage Libre</button>
+        <button class="picker-tab" data-picker-tab="math">🧮 Coloriage Maths</button>
+      </div>
+      <!-- Tab libre : grille de tous les dessins -->
+      <div class="picker-content" id="pickerLibre">
+        <div class="picker-grid" id="pickerGridLibre"></div>
+      </div>
+      <!-- Tab maths : choix type + difficulté + dessins -->
+      <div class="picker-content" id="pickerMath" hidden>
+        <div class="picker-math-options">
+          <div class="picker-option-group">
+            <h4>Type de calcul</h4>
+            <div class="picker-chips" id="pickerMathType">
+              <button class="picker-chip active" data-mtype="addition">➕ Addition</button>
+              <button class="picker-chip" data-mtype="subtraction">➖ Soustraction</button>
+              <button class="picker-chip" data-mtype="multiplication">✖️ Multiplication</button>
+              <button class="picker-chip" data-mtype="division">➗ Division</button>
+            </div>
+          </div>
+          <div class="picker-option-group">
+            <h4>Difficulte</h4>
+            <div class="picker-chips" id="pickerDifficulty">
+              <button class="picker-chip active" data-diff="easy">⭐ Facile</button>
+              <button class="picker-chip" data-diff="medium">⭐⭐ Moyen</button>
+              <button class="picker-chip" data-diff="hard">⭐⭐⭐ Difficile</button>
+            </div>
+          </div>
+        </div>
+        <div class="picker-grid" id="pickerGridMath"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- ========== CATEGORIES VIEW ========== -->
   <section class="view" id="view-categories">
@@ -74,7 +141,7 @@
   <!-- ========== DRAWINGS VIEW ========== -->
   <section class="view" id="view-drawings">
     <div class="view-header">
-      <button class="btn btn-back" data-action="go-categories">← Retour</button>
+      <button class="btn btn-back" data-action="go-home">← Retour</button>
       <h2 id="drawingsTitle">Dessins</h2>
     </div>
     <div class="drawings-grid" id="drawingsGrid"></div>
