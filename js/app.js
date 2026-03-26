@@ -185,7 +185,7 @@
   /* -------------------------------------------------------
      Dark mode
      ------------------------------------------------------- */
-  let darkMode = localStorage.getItem('sc-dark') === 'true';
+  let darkMode = localStorage.getItem('sc-dark') !== 'false';
 
   function applyDark(on) {
     darkMode = on;
